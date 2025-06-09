@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}ویرایش شریک{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <a href="{{ url_for('partners.index') }}" class="flex items-center gap-2">
+        <span>🤝</span>
+        <span>شرکا</span>
+    </a>
+</li>
+<li class="breadcrumb-item">
+    <a href="{{ url_for('partners.show', id=partner.id) }}" class="flex items-center gap-2">
+        <span>👤</span>
+        <span>{{ partner.name }}</span>
+    </a>
+</li>
+<li class="breadcrumb-item">
+    <span class="flex items-center gap-2 text-primary">
+        <span>✏️</span>
+        <span>ویرایش</span>
+    </span>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+            <h1 class="text-4xl font-bold mb-2">✏️🤝 ویرایش شریک</h1>
+            <p class="text-base-content/70">ویرایش اطلاعات {{ partner.name }}</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ url_for('partners.show', id=partner.id) }}" class="btn btn-outline">
+                <span class="ml-2">🔙</span>
+                بازگشت
+            </a>
+        </div>
+    </div>
+
+    <!-- فرم ویرایش شریک -->
+    <form method="POST" id="partnerForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <!-- اطلاعات شخصی -->
+        <div class="card bg-base-100 shadow-xl mb-6">
+            <div class="card-header bg-warning text-warning-content p-4 rounded-t-2xl">
+                <h2 class="card-title">✏️ ویرایش اطلاعات شخصی</h2>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-control md:col-span-2">
+                        <label class="label">
+                            <span class="label-text font-medium">نام شریک</span>
+                            <span class="label-text-alt text-error">*</span>
+                        </label>
+                        <input type="text" name="name" value="{{ partner.name }}" 
+                               placeholder="نام کامل شریک"
+                               class="input input-bordered" required />
+                        <div class="label">
+                            <span class="label-text-alt">نام کامل شریک</span>
+                        </div>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">شماره تلفن</span>
+                        </label>
+                        <input type="tel" name="phone" value="{{ partner.phone or '' }}" 
+                               placeholder="09123456789"
+                               class="input input-bordered" pattern="[0-9]{11}" />
+                        <div class="label">
+                            <span class="label-text-alt">مثال: 09123456789</span>
+                        </div>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">آدرس ایمیل</span>
+                        </label>
+                        <input type="email" name="email" value="{{ partner.email or '' }}" 
+                               placeholder="example@email.com"
+                               class="input input-bordered" />
+                        <div class="label">
+                            <span class="label-text-alt">برای ارسال اطلاعیه‌ها</span>
+                        </div>
+                    </div>
+
+                    <div class="form-control md:col-span-2">
+                        <label class="label">
+                            <span class="label-text font-medium">یادداشت‌ها</span>
+                        </label>
+                        <textarea name="notes" placeholder="یادداشت‌ها و توضیحات اضافی..."
+                                  class="textarea textarea-bordered h-24">{{ partner.notes or '' }}</textarea>
+                        <div class="label">
+                            <span class="label-text-alt">اطلاعات اضافی در مورد شریک (اختیاری)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اطلاعات مالی (فقط نمایش) -->
+        <div class="card bg-base-100 shadow-xl mb-6">
+            <div class="card-header bg-info text-info-content p-4 rounded-t-2xl">
+                <h3 class="card-title">📊 اطلاعات مالی</h3>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="text-center p-4 bg-base-200 rounded-lg">
+                        <div class="text-lg font-bold text-success">{{ "{:,}".format(partner.balance|int) }}</div>
+                        <div class="text-sm opacity-70">مانده حساب (تومان)</div>
+                    </div>
+                    <div class="text-center p-4 bg-base-200 rounded-lg">
+                        <div class="text-lg font-bold">{{ partner.transactions|length }}</div>
+                        <div class="text-sm opacity-70">تعداد تراکنش‌ها</div>
+                    </div>
+                    <div class="text-center p-4 bg-base-200 rounded-lg">
+                        <div class="text-lg font-bold">{{ partner.created_at.strftime('%Y/%m/%d') }}</div>
+                        <div class="text-sm opacity-70">تاریخ ثبت</div>
+                    </div>
+                </div>
+                <div class="alert alert-info mt-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                        <h4 class="font-bold">توجه!</h4>
+                        <div class="text-xs">
+                            اطلاعات مالی از طریق تراکنش‌ها محاسبه می‌شود و قابل ویرایش مستقیم نیست.
+                            برای تغییر مانده حساب، تراکنش جدید ثبت کنید.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- دکمه‌های عملیات -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <div class="flex flex-col sm:flex-row gap-4 justify-between items-center">
+                    <div class="text-sm text-base-content/70">
+                        <span>⚠️ فیلدهای ستاره‌دار (*) اجباری هستند</span>
+                    </div>
+                    <div class="flex gap-3">
+                        <a href="{{ url_for('partners.show', id=partner.id) }}" class="btn btn-outline">
+                            <span class="ml-2">❌</span>
+                            انصراف
+                        </a>
+                        <button type="button" class="btn btn-info" onclick="previewPartner()">
+                            <span class="ml-2">👁️</span>
+                            پیش‌نمایش
+                        </button>
+                        <button type="submit" class="btn btn-warning btn-lg">
+                            <span class="ml-2">✅</span>
+                            بروزرسانی شریک
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewPartner() {
+    const name = document.querySelector('input[name="name"]').value || 'نامشخص';
+    const phone = document.querySelector('input[name="phone"]').value || 'ندارد';
+    const email = document.querySelector('input[name="email"]').value || 'ندارد';
+    const notes = document.querySelector('textarea[name="notes"]').value || 'ندارد';
+
+    alert(`پیش‌نمایش شریک:\n\nنام: ${name}\nتلفن: ${phone}\nایمیل: ${email}\nیادداشت: ${notes}`);
+}
+
+// اعتبارسنجی شماره تلفن
+document.querySelector('input[name="phone"]').addEventListener('input', function() {
+    const phone = this.value;
+    if (phone && !/^09\d{9}$/.test(phone)) {
+        this.setCustomValidity('شماره تلفن باید با 09 شروع شده و 11 رقم باشد');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+
+// فوکوس روی اولین فیلد
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelector('input[name="name"]').focus();
+});
+</script>
+{% endblock %}

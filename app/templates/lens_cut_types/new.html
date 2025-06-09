@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}نوع تراش جدید{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">نوع تراش جدید</h1>
+    <a href="{{ url_for('lens_cut_types.index') }}" class="btn btn-ghost">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        بازگشت
+    </a>
+</div>
+
+<div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- نام -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">نام</span>
+                    </label>
+                    <input type="text" name="name" class="input input-bordered" required />
+                </div>
+
+                <!-- قیمت پیش‌فرض -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">قیمت پیش‌فرض (تومان)</span>
+                    </label>
+                    <input type="number" name="default_price" class="input input-bordered" required />
+                </div>
+
+                <!-- توضیحات -->
+                <div class="form-control md:col-span-2">
+                    <label class="label">
+                        <span class="label-text">توضیحات</span>
+                    </label>
+                    <textarea name="description" class="textarea textarea-bordered h-24"></textarea>
+                </div>
+            </div>
+
+            <div class="card-actions justify-end mt-6">
+                <button type="submit" class="btn btn-primary">ثبت نوع تراش</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

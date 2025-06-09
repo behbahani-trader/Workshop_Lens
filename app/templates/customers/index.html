@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+
+{% block title %}مدیریت مشتریان{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <span class="flex items-center gap-2 text-primary">
+        <span>👥</span>
+        <span>مدیریت مشتریان</span>
+    </span>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+            <h1 class="text-4xl font-bold mb-2">👥 مدیریت مشتریان</h1>
+            <p class="text-base-content/70">مشاهده و مدیریت اطلاعات مشتریان</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ url_for('customers.new') }}" class="btn btn-primary btn-lg">
+                <span class="ml-2">👤➕</span>
+                مشتری جدید
+            </a>
+            <button class="btn btn-outline" onclick="window.print()">
+                <span class="ml-2">🖨️</span>
+                چاپ
+            </button>
+        </div>
+    </div>
+
+    <!-- آمار سریع -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="stat bg-base-100 shadow-lg rounded-2xl">
+            <div class="stat-figure text-primary">
+                <span class="text-2xl">👥</span>
+            </div>
+            <div class="stat-title">کل مشتریان</div>
+            <div class="stat-value text-primary">{{ customers.total }}</div>
+            <div class="stat-desc">در این صفحه: {{ customers.items|length }}</div>
+        </div>
+
+        <div class="stat bg-base-100 shadow-lg rounded-2xl">
+            <div class="stat-figure text-success">
+                <span class="text-2xl">📞</span>
+            </div>
+            <div class="stat-title">دارای تلفن</div>
+            <div class="stat-value text-success">{{ customers.items|selectattr('phone')|list|length }}</div>
+            <div class="stat-desc">قابل تماس</div>
+        </div>
+
+        <div class="stat bg-base-100 shadow-lg rounded-2xl">
+            <div class="stat-figure text-info">
+                <span class="text-2xl">📧</span>
+            </div>
+            <div class="stat-title">دارای ایمیل</div>
+            <div class="stat-value text-info">{{ customers.items|selectattr('email')|list|length }}</div>
+            <div class="stat-desc">قابل ارسال ایمیل</div>
+        </div>
+
+        <div class="stat bg-base-100 shadow-lg rounded-2xl">
+            <div class="stat-figure text-warning">
+                <span class="text-2xl">🆕</span>
+            </div>
+            <div class="stat-title">جدید امروز</div>
+            <div class="stat-value text-warning">{{ today_customers or 0 }}</div>
+            <div class="stat-desc">ثبت شده امروز</div>
+        </div>
+    </div>
+
+    <!-- جستجو و فیلتر -->
+    <div class="card bg-base-100 shadow-xl mb-6">
+        <div class="card-header bg-primary text-primary-content p-4 rounded-t-2xl">
+            <h2 class="card-title">🔍 جستجو و فیلتر</h2>
+        </div>
+        <div class="card-body">
+            <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-medium">جستجو در نام و تلفن</span>
+                    </label>
+                    <div class="input-group">
+                        <input type="text" name="search" placeholder="نام، نام خانوادگی یا شماره تلفن..." 
+                               class="input input-bordered flex-1" value="{{ search or '' }}" />
+                        <button type="submit" class="btn btn-primary">
+                            <span class="ml-1">🔍</span>
+                            جستجو
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-medium">مرتب‌سازی</span>
+                    </label>
+                    <select name="sort" class="select select-bordered" onchange="this.form.submit()">
+                        <option value="name" {{ 'selected' if sort == 'name' else '' }}>بر اساس نام</option>
+                        <option value="date_desc" {{ 'selected' if sort == 'date_desc' else '' }}>جدیدترین</option>
+                        <option value="date_asc" {{ 'selected' if sort == 'date_asc' else '' }}>قدیمی‌ترین</option>
+                    </select>
+                </div>
+
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-medium">عملیات</span>
+                    </label>
+                    <div class="flex gap-2">
+                        <a href="{{ url_for('customers.index') }}" class="btn btn-outline flex-1">
+                            <span class="ml-1">🔄</span>
+                            پاک کردن فیلتر
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- جدول مشتریان -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-header bg-secondary text-secondary-content p-4 rounded-t-2xl">
+            <div class="flex justify-between items-center">
+                <h2 class="card-title">📋 لیست مشتریان</h2>
+                <div class="text-sm">
+                    صفحه {{ customers.page }} از {{ customers.pages }}
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="overflow-x-auto">
+                <table class="table table-zebra w-full">
+                    <thead>
+                        <tr class="bg-base-200">
+                            <th>
+                                <input type="checkbox" class="checkbox" id="select-all">
+                            </th>
+                            <th>👤 نام مشتری</th>
+                            <th>📞 تلفن</th>
+                            <th>📧 ایمیل</th>
+                            <th>📅 تاریخ ثبت</th>
+                            <th>📊 سفارشات</th>
+                            <th>⚙️ عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for customer in customers.items %}
+                        <tr class="hover">
+                            <td>
+                                <input type="checkbox" class="checkbox customer-checkbox" value="{{ customer.id }}">
+                            </td>
+                            <td>
+                                <div class="flex items-center gap-3">
+                                    <div class="avatar placeholder">
+                                        <div class="bg-primary text-primary-content rounded-full w-10">
+                                            <span class="text-sm">{{ customer.first_name[0] if customer.first_name else '?' }}</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold">{{ customer.full_name }}</div>
+                                        {% if customer.notes %}
+                                        <div class="text-sm opacity-50">{{ customer.notes[:30] }}{{ '...' if customer.notes|length > 30 else '' }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if customer.phone %}
+                                <div class="flex items-center gap-2">
+                                    <span class="font-mono">{{ customer.phone }}</span>
+                                    <a href="tel:{{ customer.phone }}" class="btn btn-ghost btn-xs">
+                                        <span>📞</span>
+                                    </a>
+                                </div>
+                                {% else %}
+                                <span class="text-base-content/50">ندارد</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if customer.email %}
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm">{{ customer.email }}</span>
+                                    <a href="mailto:{{ customer.email }}" class="btn btn-ghost btn-xs">
+                                        <span>📧</span>
+                                    </a>
+                                </div>
+                                {% else %}
+                                <span class="text-base-content/50">ندارد</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="font-medium">{{ customer.created_at.strftime('%Y/%m/%d') if customer.created_at else '' }}</span>
+                            </td>
+                            <td>
+                                <div class="flex items-center gap-2">
+                                    <span class="badge badge-primary">{{ customer.orders|length }}</span>
+                                    {% if customer.orders %}
+                                    <span class="text-xs text-base-content/70">سفارش</span>
+                                    {% else %}
+                                    <span class="text-xs text-base-content/50">بدون سفارش</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="dropdown dropdown-end">
+                                    <div tabindex="0" role="button" class="btn btn-ghost btn-sm">
+                                        <span>⚙️</span>
+                                        <span class="ml-1">عملیات</span>
+                                        <span>▼</span>
+                                    </div>
+                                    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-xl bg-base-100 rounded-box w-52 border border-base-300">
+                                        <li>
+                                            <a href="{{ url_for('customers.show', id=customer.id) }}" class="flex items-center gap-2">
+                                                <span>👁️</span>
+                                                <span>مشاهده جزئیات</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ url_for('customers.edit', id=customer.id) }}" class="flex items-center gap-2">
+                                                <span>✏️</span>
+                                                <span>ویرایش اطلاعات</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ url_for('orders.new') }}?customer_id={{ customer.id }}" class="flex items-center gap-2">
+                                                <span>➕</span>
+                                                <span>سفارش جدید</span>
+                                            </a>
+                                        </li>
+                                        {% if customer.orders %}
+                                        <li>
+                                            <a href="{{ url_for('customers.ledger', id=customer.id) }}" class="flex items-center gap-2">
+                                                <span>📊</span>
+                                                <span>دفترچه حساب</span>
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                        <div class="divider my-1"></div>
+                                        <li>
+                                            <form method="POST" action="{{ url_for('customers.delete', id=customer.id) }}" 
+                                                  onsubmit="return confirm('آیا از حذف مشتری {{ customer.full_name }} اطمینان دارید؟');">
+                                                <button type="submit" class="flex items-center gap-2 text-error w-full">
+                                                    <span>🗑️</span>
+                                                    <span>حذف مشتری</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- صفحه‌بندی -->
+            {% if customers.pages > 1 %}
+            <div class="flex justify-center mt-4 p-4">
+                <div class="btn-group">
+                    {% if customers.has_prev %}
+                    <a href="{{ url_for('customers.index', page=customers.prev_num, search=search, sort=sort) }}" class="btn btn-sm">قبلی</a>
+                    {% endif %}
+
+                    {% for page_num in customers.iter_pages(left_edge=2, left_current=2, right_current=3, right_edge=2) %}
+                        {% if page_num %}
+                            {% if page_num == customers.page %}
+                            <button class="btn btn-sm btn-active">{{ page_num }}</button>
+                            {% else %}
+                            <a href="{{ url_for('customers.index', page=page_num, search=search, sort=sort) }}" class="btn btn-sm">{{ page_num }}</a>
+                            {% endif %}
+                        {% else %}
+                            <button class="btn btn-sm btn-disabled">...</button>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if customers.has_next %}
+                    <a href="{{ url_for('customers.index', page=customers.next_num, search=search, sort=sort) }}" class="btn btn-sm">بعدی</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // انتخاب همه checkbox ها
+    const selectAllCheckbox = document.getElementById('select-all');
+    const customerCheckboxes = document.querySelectorAll('.customer-checkbox');
+
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            customerCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+    }
+
+    // بررسی وضعیت select all وقتی checkbox های فردی تغییر می‌کنند
+    customerCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const checkedCount = document.querySelectorAll('.customer-checkbox:checked').length;
+            const totalCount = customerCheckboxes.length;
+
+            if (checkedCount === 0) {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = false;
+            } else if (checkedCount === totalCount) {
+                selectAllCheckbox.checked = true;
+                selectAllCheckbox.indeterminate = false;
+            } else {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = true;
+            }
+        });
+    });
+
+    // عملیات گروهی (اختیاری - برای آینده)
+    function getSelectedCustomers() {
+        const selected = [];
+        customerCheckboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                selected.push(checkbox.value);
+            }
+        });
+        return selected;
+    }
+
+    // تأیید حذف مشتری
+    const deleteButtons = document.querySelectorAll('form[action*="/delete"] button[type="submit"]');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            const form = this.closest('form');
+            const customerName = this.closest('tr').querySelector('.font-bold').textContent;
+
+            if (!confirm(`آیا از حذف مشتری "${customerName}" اطمینان دارید؟\n\nتوجه: این عملیات غیرقابل بازگشت است.`)) {
+                e.preventDefault();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

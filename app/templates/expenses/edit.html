@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}ویرایش هزینه{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <a href="{{ url_for('expenses.index') }}" class="flex items-center gap-2">
+        <span>💸</span>
+        <span>هزینه‌ها</span>
+    </a>
+</li>
+<li class="breadcrumb-item">
+    <a href="{{ url_for('expenses.show', id=expense.id) }}" class="flex items-center gap-2">
+        <span>👁️</span>
+        <span>{{ expense.title[:20] }}{% if expense.title|length > 20 %}...{% endif %}</span>
+    </a>
+</li>
+<li class="breadcrumb-item">
+    <span class="flex items-center gap-2 text-primary">
+        <span>✏️</span>
+        <span>ویرایش</span>
+    </span>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+            <h1 class="text-4xl font-bold mb-2">✏️💸 ویرایش هزینه</h1>
+            <p class="text-base-content/70">ویرایش اطلاعات هزینه</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ url_for('expenses.show', id=expense.id) }}" class="btn btn-outline">
+                <span class="ml-2">🔙</span>
+                بازگشت
+            </a>
+        </div>
+    </div>
+
+    <!-- فرم ویرایش هزینه -->
+    <form method="POST" id="expenseForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <!-- اطلاعات هزینه -->
+        <div class="card bg-base-100 shadow-xl mb-6">
+            <div class="card-header bg-warning text-warning-content p-4 rounded-t-2xl">
+                <h2 class="card-title">✏️ ویرایش اطلاعات هزینه</h2>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">عنوان هزینه</span>
+                            <span class="label-text-alt text-error">*</span>
+                        </label>
+                        <input type="text" name="title" value="{{ expense.title }}" 
+                               placeholder="مثال: خرید مواد اولیه"
+                               class="input input-bordered" required />
+                        <div class="label">
+                            <span class="label-text-alt">عنوان مختصر و واضح برای هزینه</span>
+                        </div>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">مبلغ (تومان)</span>
+                            <span class="label-text-alt text-error">*</span>
+                        </label>
+                        <input type="number" name="amount" value="{{ expense.amount|int }}" 
+                               placeholder="100000" min="1"
+                               class="input input-bordered" required />
+                        <div class="label">
+                            <span class="label-text-alt">مبلغ به تومان</span>
+                        </div>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">تاریخ هزینه</span>
+                        </label>
+                        <input type="date" name="expense_date" 
+                               value="{{ expense.expense_date.strftime('%Y-%m-%d') }}"
+                               class="input input-bordered" />
+                        <div class="label">
+                            <span class="label-text-alt">تاریخ واقعی انجام هزینه</span>
+                        </div>
+                    </div>
+
+                    <div class="form-control md:col-span-1">
+                        <label class="label">
+                            <span class="label-text font-medium">شرح تکمیلی</span>
+                        </label>
+                        <textarea name="description" placeholder="توضیحات اضافی در مورد هزینه..."
+                                  class="textarea textarea-bordered h-24">{{ expense.description or '' }}</textarea>
+                        <div class="label">
+                            <span class="label-text-alt">جزئیات بیشتر در مورد هزینه (اختیاری)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- هشدار -->
+        <div class="alert alert-info mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+                <h3 class="font-bold">توجه!</h3>
+                <div class="text-xs">
+                    در صورت تغییر مبلغ، تفاوت مبلغ در صندوق اصلی اعمال خواهد شد.
+                    <br>
+                    مبلغ فعلی: <strong>{{ "{:,}".format(expense.amount|int) }} تومان</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- دکمه‌های عملیات -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <div class="flex flex-col sm:flex-row gap-4 justify-between items-center">
+                    <div class="text-sm text-base-content/70">
+                        <span>⚠️ فیلدهای ستاره‌دار (*) اجباری هستند</span>
+                    </div>
+                    <div class="flex gap-3">
+                        <a href="{{ url_for('expenses.show', id=expense.id) }}" class="btn btn-outline">
+                            <span class="ml-2">❌</span>
+                            انصراف
+                        </a>
+                        <button type="button" class="btn btn-info" onclick="previewExpense()">
+                            <span class="ml-2">👁️</span>
+                            پیش‌نمایش
+                        </button>
+                        <button type="submit" class="btn btn-warning btn-lg">
+                            <span class="ml-2">✅</span>
+                            بروزرسانی هزینه
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewExpense() {
+    const title = document.querySelector('input[name="title"]').value || 'نامشخص';
+    const amount = document.querySelector('input[name="amount"]').value || '0';
+    const expenseDate = document.querySelector('input[name="expense_date"]').value || 'امروز';
+    const description = document.querySelector('textarea[name="description"]').value || 'ندارد';
+
+    const formattedAmount = parseInt(amount).toLocaleString('fa-IR');
+    const oldAmount = {{ expense.amount|int }};
+    const formattedOldAmount = oldAmount.toLocaleString('fa-IR');
+    const difference = parseInt(amount) - oldAmount;
+    const formattedDifference = Math.abs(difference).toLocaleString('fa-IR');
+    
+    let changeText = '';
+    if (difference > 0) {
+        changeText = `\n\n⬆️ افزایش: ${formattedDifference} تومان (از صندوق اصلی کسر می‌شود)`;
+    } else if (difference < 0) {
+        changeText = `\n\n⬇️ کاهش: ${formattedDifference} تومان (به صندوق اصلی اضافه می‌شود)`;
+    } else {
+        changeText = '\n\n➡️ بدون تغییر مبلغ';
+    }
+    
+    alert(`پیش‌نمایش هزینه:\n\nعنوان: ${title}\nمبلغ جدید: ${formattedAmount} تومان\nمبلغ قبلی: ${formattedOldAmount} تومان\nتاریخ: ${expenseDate}\nشرح: ${description}${changeText}`);
+}
+
+// فرمت کردن مبلغ هنگام تایپ
+document.querySelector('input[name="amount"]').addEventListener('input', function() {
+    const value = this.value.replace(/,/g, '');
+    if (value && !isNaN(value)) {
+        const formatted = parseInt(value).toLocaleString('fa-IR');
+        this.setAttribute('data-formatted', formatted + ' تومان');
+    }
+});
+
+// اعتبارسنجی مبلغ
+document.querySelector('input[name="amount"]').addEventListener('blur', function() {
+    const amount = parseFloat(this.value);
+    if (amount <= 0) {
+        this.setCustomValidity('مبلغ هزینه باید بیشتر از صفر باشد');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+
+// فوکوس روی اولین فیلد
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelector('input[name="title"]').focus();
+});
+</script>
+{% endblock %}

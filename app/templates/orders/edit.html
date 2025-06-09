@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}ویرایش سفارش{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">ویرایش سفارش</h1>
+    <a href="{{ url_for('orders.show', id=order.id) }}" class="btn btn-ghost">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        بازگشت
+    </a>
+</div>
+
+<div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+        <form method="POST" id="orderForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- مشتری -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">مشتری</span>
+                    </label>
+                    <select name="customer_id" class="select select-bordered" required>
+                        <option value="">انتخاب مشتری</option>
+                        {% for customer in customers %}
+                        <option value="{{ customer.id }}" {% if customer.id == order.customer_id %}selected{% endif %}>
+                            {{ customer.full_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- تاریخ تحویل -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">تاریخ تحویل</span>
+                    </label>
+                    <input type="date" name="delivery_date" value="{{ order.delivery_date.strftime('%Y-%m-%d') }}" class="input input-bordered" required />
+                </div>
+
+                <!-- وضعیت -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">وضعیت</span>
+                    </label>
+                    <select name="status" class="select select-bordered" required>
+                        <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>در انتظار</option>
+                        <option value="in_progress" {% if order.status == 'in_progress' %}selected{% endif %}>در حال انجام</option>
+                        <option value="completed" {% if order.status == 'completed' %}selected{% endif %}>تکمیل شده</option>
+                        <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>لغو شده</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- عدسی‌ها -->
+            <div class="mt-8">
+                <h2 class="text-xl font-bold mb-4">عدسی‌ها</h2>
+                <div id="lenses-container">
+                    {% for lens in order.lenses %}
+                    <div class="lens-item card bg-base-200 p-4 mb-4">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <!-- نوع عدسی -->
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text">نوع عدسی</span>
+                                </label>
+                                <select name="lens_type_id[]" class="select select-bordered lens-type" required>
+                                    <option value="">انتخاب نوع عدسی</option>
+                                    {% for lens_type in lens_types %}
+                                    <option value="{{ lens_type.id }}" 
+                                            data-price="{{ lens_type.default_price }}"
+                                            {% if lens_type.id == lens.lens_type_id %}selected{% endif %}>
+                                        {{ lens_type.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- نوع تراش -->
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text">نوع تراش</span>
+                                </label>
+                                <select name="lens_cut_type_id[]" class="select select-bordered lens-cut-type" required>
+                                    <option value="">انتخاب نوع تراش</option>
+                                    {% for cut_type in lens_cut_types %}
+                                    <option value="{{ cut_type.id }}"
+                                            data-price="{{ cut_type.default_price }}"
+                                            {% if cut_type.id == lens.lens_cut_type_id %}selected{% endif %}>
+                                        {{ cut_type.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- تعداد -->
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text">تعداد</span>
+                                </label>
+                                <input type="number" name="lens_quantity[]" value="{{ lens.quantity }}" class="input input-bordered" required />
+                            </div>
+
+                            <!-- قیمت -->
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text">قیمت (تومان)</span>
+                                </label>
+                                <input type="number" name="lens_price[]" value="{{ lens.price }}" class="input input-bordered lens-price" required readonly />
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <button type="button" id="add-lens" class="btn btn-secondary mt-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    افزودن عدسی
+                </button>
+            </div>
+
+            <!-- مبلغ کل -->
+            <div class="form-control mt-6">
+                <label class="label">
+                    <span class="label-text">مبلغ کل (تومان)</span>
+                </label>
+                <input type="number" name="total_amount" id="total_amount" value="{{ order.total_amount }}" class="input input-bordered" required readonly />
+            </div>
+
+            <!-- پیش پرداخت -->
+            <div class="form-control mt-6">
+                <label class="label">
+                    <span class="label-text">پیش پرداخت (تومان)</span>
+                </label>
+                <input type="number" name="payment" value="{{ order.payment }}" class="input input-bordered" required />
+            </div>
+
+            <!-- توضیحات -->
+            <div class="form-control mt-6">
+                <label class="label">
+                    <span class="label-text">توضیحات</span>
+                </label>
+                <textarea name="notes" class="textarea textarea-bordered h-24">{{ order.notes }}</textarea>
+            </div>
+
+            <div class="card-actions justify-end mt-6">
+                <button type="submit" class="btn btn-primary">بروزرسانی سفارش</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const lensesContainer = document.getElementById('lenses-container');
+    const addLensButton = document.getElementById('add-lens');
+    const totalAmountInput = document.getElementById('total_amount');
+
+    // تابع محاسبه قیمت کل
+    function calculateTotal() {
+        let total = 0;
+        document.querySelectorAll('.lens-price').forEach(input => {
+            total += parseFloat(input.value || 0);
+        });
+        totalAmountInput.value = total;
+    }
+
+    // تابع محاسبه قیمت هر عدسی
+    function calculateLensPrice(lensItem) {
+        const lensType = lensItem.querySelector('.lens-type');
+        const lensCutType = lensItem.querySelector('.lens-cut-type');
+        const priceInput = lensItem.querySelector('.lens-price');
+
+        if (lensType.value && lensCutType.value) {
+            const lensTypePrice = parseFloat(lensType.options[lensType.selectedIndex].dataset.price || 0);
+            const cutTypePrice = parseFloat(lensCutType.options[lensCutType.selectedIndex].dataset.price || 0);
+            priceInput.value = lensTypePrice + cutTypePrice;
+        } else {
+            priceInput.value = '';
+        }
+        calculateTotal();
+    }
+
+    // افزودن عدسی جدید
+    addLensButton.addEventListener('click', function() {
+        const lensItem = document.querySelector('.lens-item').cloneNode(true);
+        lensItem.querySelectorAll('select').forEach(select => select.value = '');
+        lensItem.querySelector('.lens-price').value = '';
+        lensesContainer.appendChild(lensItem);
+
+        // اضافه کردن event listener برای محاسبه قیمت
+        lensItem.querySelectorAll('select').forEach(select => {
+            select.addEventListener('change', () => calculateLensPrice(lensItem));
+        });
+    });
+
+    // اضافه کردن event listener برای محاسبه قیمت در همه عدسی‌ها
+    document.querySelectorAll('.lens-item').forEach(lensItem => {
+        lensItem.querySelectorAll('select').forEach(select => {
+            select.addEventListener('change', () => calculateLensPrice(lensItem));
+        });
+    });
+});
+</script>
+{% endblock %} 

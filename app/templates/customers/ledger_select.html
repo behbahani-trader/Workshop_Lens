@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}انتخاب مشتری برای دفتر معین{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">انتخاب مشتری برای دفتر معین</h1>
+    <a href="{{ url_for('main.index') }}" class="btn btn-ghost">بازگشت</a>
+</div>
+
+<div class="card bg-base-100 shadow-xl mb-6">
+    <div class="card-body">
+        <form method="get" class="flex gap-2 mb-4">
+            <input type="text" name="search" value="{{ search }}" class="input input-bordered w-full max-w-xs" placeholder="جستجو بر اساس نام، نام خانوادگی یا تلفن...">
+            <button type="submit" class="btn btn-primary">جستجو</button>
+        </form>
+        <div class="overflow-x-auto">
+            <table class="table w-full">
+                <thead>
+                    <tr>
+                        <th>نام</th>
+                        <th>نام خانوادگی</th>
+                        <th>تلفن</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for customer in customers %}
+                    <tr>
+                        <td>{{ customer.first_name }}</td>
+                        <td>{{ customer.last_name }}</td>
+                        <td>{{ customer.phone }}</td>
+                        <td>
+                            <a href="{{ url_for('customers.ledger', id=customer.id) }}" class="btn btn-info btn-xs">مشاهده دفتر معین</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if not customers %}
+            <div class="text-center text-error mt-4">مشتری‌ای یافت نشد.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

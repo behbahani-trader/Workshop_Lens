@@ -1,0 +1,27 @@
+include LICENSE
+include README.md
+include requirements.txt
+include requirements-dev.txt
+include pyproject.toml
+include setup.cfg
+include MANIFEST.in
+include .gitignore
+
+recursive-include app/static *
+recursive-include app/templates *
+recursive-include tests *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+recursive-exclude * *.so
+recursive-exclude * *.egg
+recursive-exclude * *.egg-info
+recursive-exclude * .DS_Store
+recursive-exclude * .git
+recursive-exclude * .idea
+recursive-exclude * .vscode
+recursive-exclude * venv
+recursive-exclude * env
+recursive-exclude * ENV
+recursive-exclude * .env
+recursive-exclude * *.log
+recursive-exclude * Thumbs.db 

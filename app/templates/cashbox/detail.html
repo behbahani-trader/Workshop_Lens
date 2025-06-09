@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}جزئیات صندوق {{ cashbox.name }}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <a href="{{ url_for('cashbox.index') }}" class="flex items-center gap-2">
+        <span>💰</span>
+        <span>صندوق مالی</span>
+    </a>
+</li>
+<li class="breadcrumb-item">
+    <span class="flex items-center gap-2 text-primary">
+        <span>📊</span>
+        <span>صندوق {{ cashbox.name }}</span>
+    </span>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+            <h1 class="text-4xl font-bold mb-2">
+                {% if cashbox.name == 'A' %}🏦{% else %}🏛️{% endif %} 
+                جزئیات صندوق {{ cashbox.name }}
+            </h1>
+            <p class="text-base-content/70">
+                {% if cashbox.name == 'A' %}
+                    درآمد اصلی و هزینه‌ها
+                {% else %}
+                    درآمد VIP اضافی
+                {% endif %}
+            </p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ url_for('cashbox.index') }}" class="btn btn-outline">
+                <span class="ml-2">🔙</span>
+                بازگشت
+            </a>
+            <a href="{{ url_for('cashbox.invoice', cashbox_name=cashbox.name) }}" class="btn btn-primary">
+                <span class="ml-2">🧾</span>
+                فاکتور
+            </a>
+        </div>
+    </div>
+
+    <!-- آمار صندوق -->
+    <div class="card bg-gradient-to-br {% if cashbox.name == 'A' %}from-primary to-primary-focus text-primary-content{% else %}from-secondary to-secondary-focus text-secondary-content{% endif %} shadow-xl mb-8">
+        <div class="card-body">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-center">
+                    <div class="text-3xl font-bold">{{ "{:,}".format(cashbox.balance|int) }}</div>
+                    <div class="text-sm opacity-80">موجودی فعلی (تومان)</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-success">{{ "{:,}".format(total_income|int) }}</div>
+                    <div class="text-sm opacity-80">کل درآمد (تومان)</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-error">{{ "{:,}".format(total_expense|int) }}</div>
+                    <div class="text-sm opacity-80">کل هزینه (تومان)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- فیلتر تاریخ -->
+    <div class="card bg-base-100 shadow-xl mb-6">
+        <div class="card-body">
+            <form method="GET" class="flex flex-wrap gap-4 items-end">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">از تاریخ</span>
+                    </label>
+                    <input type="date" name="date_from" value="{{ date_from or '' }}" class="input input-bordered">
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">تا تاریخ</span>
+                    </label>
+                    <input type="date" name="date_to" value="{{ date_to or '' }}" class="input input-bordered">
+                </div>
+                <div class="form-control">
+                    <button type="submit" class="btn btn-primary">
+                        <span class="ml-2">🔍</span>
+                        فیلتر
+                    </button>
+                </div>
+                {% if date_from or date_to %}
+                <div class="form-control">
+                    <a href="{{ url_for('cashbox.detail', cashbox_name=cashbox.name) }}" class="btn btn-outline">
+                        <span class="ml-2">🗑️</span>
+                        حذف فیلتر
+                    </a>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <!-- لیست تراکنش‌ها -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-header bg-{% if cashbox.name == 'A' %}primary{% else %}secondary{% endif %} text-{% if cashbox.name == 'A' %}primary{% else %}secondary{% endif %}-content p-4 rounded-t-2xl">
+            <h3 class="card-title">📋 تراکنش‌ها</h3>
+        </div>
+        <div class="card-body p-0">
+            {% if transactions %}
+            <div class="overflow-x-auto">
+                <table class="table table-zebra">
+                    <thead>
+                        <tr>
+                            <th>تاریخ</th>
+                            <th>نوع</th>
+                            <th>مبلغ</th>
+                            <th>شرح</th>
+                            <th>مرجع</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                        <tr>
+                            <td class="text-sm">{{ transaction.created_at.strftime('%Y/%m/%d %H:%M') }}</td>
+                            <td>
+                                {% if transaction.transaction_type == 'income' %}
+                                    <span class="badge badge-success">درآمد</span>
+                                {% else %}
+                                    <span class="badge badge-error">هزینه</span>
+                                {% endif %}
+                            </td>
+                            <td class="font-mono">
+                                {% if transaction.transaction_type == 'income' %}
+                                    <span class="text-success">+{{ "{:,}".format(transaction.amount|int) }}</span>
+                                {% else %}
+                                    <span class="text-error">-{{ "{:,}".format(transaction.amount|int) }}</span>
+                                {% endif %}
+                                <span class="text-xs opacity-60">تومان</span>
+                            </td>
+                            <td class="text-sm">{{ transaction.description }}</td>
+                            <td class="text-xs opacity-60">
+                                {% if transaction.reference_type %}
+                                    {{ transaction.reference_type }}
+                                    {% if transaction.reference_id %}
+                                        #{{ transaction.reference_id }}
+                                    {% endif %}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="p-8 text-center text-base-content/50">
+                <div class="text-4xl mb-4">📊</div>
+                <p>
+                    {% if date_from or date_to %}
+                        در بازه زمانی انتخابی تراکنشی یافت نشد
+                    {% else %}
+                        هنوز تراکنشی ثبت نشده است
+                    {% endif %}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

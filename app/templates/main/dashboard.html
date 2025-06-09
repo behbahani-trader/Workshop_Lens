@@ -1,0 +1,635 @@
+{% extends "base.html" %}
+
+{% block title %}داشبورد{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <span class="flex items-center gap-2 text-primary">
+        <i class="fas fa-chart-line"></i>
+        <span>داشبورد</span>
+    </span>
+</li>
+{% endblock %}
+
+
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+.stat-card {
+    background: linear-gradient(135deg, var(--fallback-b1,oklch(var(--b1))), var(--fallback-b2,oklch(var(--b2))));
+    border: 1px solid var(--fallback-b3,oklch(var(--b3)));
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- فیلتر زمانی -->
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">📊 داشبورد مدیریتی</h1>
+    <div class="flex gap-2">
+        <select id="periodFilter" class="select select-bordered select-sm">
+            <option value="7" {% if period == '7' %}selected{% endif %}>هفته اخیر</option>
+            <option value="30" {% if period == '30' %}selected{% endif %}>ماه اخیر</option>
+            <option value="90" {% if period == '90' %}selected{% endif %}>3 ماه اخیر</option>
+            <option value="365" {% if period == '365' %}selected{% endif %}>سال اخیر</option>
+        </select>
+        <button onclick="refreshDashboard()" class="btn btn-primary btn-sm">
+            بروزرسانی
+        </button>
+    </div>
+</div>
+
+<!-- کارت‌های آماری -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <!-- کل سفارشات -->
+    <div class="stat stat-card shadow-lg rounded-2xl">
+        <div class="stat-figure text-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+        </div>
+        <div class="stat-title">کل سفارشات</div>
+        <div class="stat-value text-primary">{{ "{:,}".format(total_orders) }}</div>
+        <div class="stat-desc">{{ period_name }}: {{ "{:,}".format(period_orders) }}</div>
+    </div>
+    
+    <!-- درآمد -->
+    <div class="stat stat-card shadow-lg rounded-2xl">
+        <div class="stat-figure text-secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <div class="stat-title">درآمد {{ period_name }}</div>
+        <div class="stat-value text-secondary">{{ "{:,}".format(period_revenue|int) }}</div>
+        <div class="stat-desc">امروز: {{ "{:,}".format(today_revenue|int) }} تومان</div>
+    </div>
+    
+    <!-- مشتریان -->
+    <div class="stat stat-card shadow-lg rounded-2xl">
+        <div class="stat-figure text-accent">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+        </div>
+        <div class="stat-title">کل مشتریان</div>
+        <div class="stat-value text-accent">{{ "{:,}".format(total_customers) }}</div>
+        <div class="stat-desc">جدید: {{ "{:,}".format(new_customers) }}</div>
+    </div>
+    
+    <!-- عدسی‌های در انتظار -->
+    <div class="stat stat-card shadow-lg rounded-2xl">
+        <div class="stat-figure text-warning">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <div class="stat-title">عدسی در انتظار</div>
+        <div class="stat-value text-warning">{{ "{:,}".format(pending_lenses) }}</div>
+        <div class="stat-desc">تحویل شده: {{ "{:,}".format(delivered_lenses) }}</div>
+    </div>
+</div>
+
+<!-- نمودارها -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- نمودار سفارشات روزانه -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="card-title">📈 سفارشات روزانه</h2>
+                <select id="dailyChartDays" class="select select-bordered select-sm">
+                    <option value="7">7 روز</option>
+                    <option value="14">14 روز</option>
+                    <option value="30">30 روز</option>
+                </select>
+            </div>
+            <div class="chart-container">
+                <canvas id="dailyOrdersChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- نمودار وضعیت سفارشات -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title">🍩 وضعیت سفارشات</h2>
+            <div class="chart-container">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- نمودار ایتم‌های تحویل شده -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="card-title">📦 ایتم‌های تحویل شده</h2>
+                <select id="deliveredChartDays" class="select select-bordered select-sm">
+                    <option value="7">7 روز</option>
+                    <option value="14">14 روز</option>
+                    <option value="30">30 روز</option>
+                </select>
+            </div>
+            <div class="chart-container">
+                <canvas id="deliveredItemsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- نمودار محبوب‌ترین عدسی‌ها -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title">🏆 محبوب‌ترین عدسی‌ها</h2>
+            <div class="chart-container">
+                <canvas id="popularLensesChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- جدول وضعیت سفارشات -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title">📋 خلاصه وضعیت</h2>
+            <div class="overflow-x-auto">
+                <table class="table table-zebra">
+                    <thead>
+                        <tr>
+                            <th>وضعیت</th>
+                            <th>تعداد</th>
+                            <th>درصد</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for status in order_status %}
+                        <tr>
+                            <td>
+                                <div class="badge badge-{{ status.color }}">{{ status.name }}</div>
+                            </td>
+                            <td class="font-bold">{{ "{:,}".format(status.count) }}</td>
+                            <td>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-16 bg-base-300 rounded-full h-2">
+                                        <div class="bg-{{ status.color }} h-2 rounded-full" style="width: {{ status.percentage }}%"></div>
+                                    </div>
+                                    <span class="text-sm">{{ "%.1f"|format(status.percentage) }}%</span>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- آمار سریع -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title">⚡ آمار سریع</h2>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center p-3 bg-base-200 rounded-lg">
+                    <span class="font-medium">سفارشات امروز</span>
+                    <span class="badge badge-primary badge-lg">{{ "{:,}".format(today_orders) }}</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-base-200 rounded-lg">
+                    <span class="font-medium">درآمد امروز</span>
+                    <span class="badge badge-secondary badge-lg">{{ "{:,}".format(today_revenue|int) }}</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-base-200 rounded-lg">
+                    <span class="font-medium">میانگین سفارش</span>
+                    <span class="badge badge-accent badge-lg">
+                        {% if period_orders > 0 %}
+                            {{ "{:,}".format((period_revenue / period_orders)|int) }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-base-200 rounded-lg">
+                    <span class="font-medium">نرخ تکمیل</span>
+                    <span class="badge badge-success badge-lg">
+                        {% set completed_count = order_status|selectattr('name', 'equalto', 'تکمیل شده')|list %}
+                        {% if completed_count %}
+                            {{ "%.0f"|format(completed_count[0].percentage) }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- جدول سفارشات اخیر -->
+<div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="card-title">📝 سفارشات اخیر</h2>
+            <a href="{{ url_for('orders.index') }}" class="btn btn-outline btn-sm">مشاهده همه</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="table table-zebra">
+                <thead>
+                    <tr>
+                        <th>شماره</th>
+                        <th>مشتری</th>
+                        <th>تاریخ</th>
+                        <th>وضعیت</th>
+                        <th>مبلغ</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                    <tr class="hover">
+                        <td class="font-mono">{{ order.order_number }}</td>
+                        <td class="font-medium">{{ order.customer.full_name }}</td>
+                        <td>{{ order.created_at.strftime('%Y/%m/%d') }}</td>
+                        <td>
+                            <div class="badge badge-{{ order.status_color }}">{{ order.status_display }}</div>
+                        </td>
+                        <td class="font-bold">{{ "{:,}".format(order.total_amount|int) }} تومان</td>
+                        <td>
+                            <div class="flex gap-1">
+                                <a href="{{ url_for('orders.show', id=order.id) }}" class="btn btn-ghost btn-xs">مشاهده</a>
+                                <a href="{{ url_for('orders.edit', id=order.id) }}" class="btn btn-ghost btn-xs">ویرایش</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// متغیرهای سراسری برای نمودارها
+let dailyOrdersChart, statusChart, deliveredItemsChart, popularLensesChart;
+
+// رنگ‌های پیش‌فرض
+const colors = {
+    primary: '#3b82f6',
+    secondary: '#8b5cf6',
+    accent: '#f59e0b',
+    success: '#10b981',
+    warning: '#f59e0b',
+    error: '#ef4444',
+    info: '#06b6d4'
+};
+
+// تابع بروزرسانی داشبورد
+function refreshDashboard() {
+    const period = document.getElementById('periodFilter').value;
+    window.location.href = `{{ url_for('main.dashboard') }}?period=${period}`;
+}
+
+// تابع ایجاد نمودار سفارشات روزانه
+async function createDailyOrdersChart() {
+    const days = document.getElementById('dailyChartDays').value || 7;
+
+    try {
+        const response = await fetch(`{{ url_for('main.api_daily_orders') }}?days=${days}`);
+        const data = await response.json();
+
+        const ctx = document.getElementById('dailyOrdersChart');
+        if (ctx) {
+            if (dailyOrdersChart) {
+                dailyOrdersChart.destroy();
+            }
+
+            dailyOrdersChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'تعداد سفارشات',
+                        data: data.orders,
+                        borderColor: colors.primary,
+                        backgroundColor: colors.primary + '20',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
+        }
+    } catch (error) {
+        console.error('خطا در بارگذاری نمودار سفارشات روزانه:', error);
+        createSimpleChart();
+    }
+}
+
+// تابع ایجاد نمودار وضعیت سفارشات
+async function createStatusChart() {
+    try {
+        const response = await fetch('{{ url_for('main.api_status_chart') }}');
+        const data = await response.json();
+
+        const ctx = document.getElementById('statusChart');
+        if (ctx) {
+            if (statusChart) {
+                statusChart.destroy();
+            }
+
+            statusChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        data: data.data,
+                        backgroundColor: data.colors,
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    }
+                }
+            });
+        }
+    } catch (error) {
+        console.error('خطا در بارگذاری نمودار وضعیت:', error);
+        createSimpleStatusChart();
+    }
+}
+
+// تابع ایجاد نمودار ایتم‌های تحویل شده
+async function createDeliveredItemsChart() {
+    const days = document.getElementById('deliveredChartDays').value || 7;
+
+    try {
+        const response = await fetch(`{{ url_for('main.api_delivered_items') }}?days=${days}`);
+        const data = await response.json();
+
+        const ctx = document.getElementById('deliveredItemsChart');
+        if (ctx) {
+            if (deliveredItemsChart) {
+                deliveredItemsChart.destroy();
+            }
+
+            deliveredItemsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'تحویل شده',
+                        data: data.delivered,
+                        backgroundColor: colors.success + '80',
+                        borderColor: colors.success,
+                        borderWidth: 1
+                    }, {
+                        label: 'در انتظار',
+                        data: data.pending,
+                        backgroundColor: colors.warning + '80',
+                        borderColor: colors.warning,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'تعداد ایتم'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y + ' عدد';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    } catch (error) {
+        console.error('خطا در بارگذاری نمودار ایتم‌های تحویل شده:', error);
+        createSimpleDeliveredChart();
+    }
+}
+
+// تابع ایجاد نمودار محبوب‌ترین عدسی‌ها
+async function createPopularLensesChart() {
+    try {
+        const response = await fetch('{{ url_for('main.api_popular_lenses') }}');
+        const data = await response.json();
+
+        const ctx = document.getElementById('popularLensesChart');
+        if (ctx) {
+            if (popularLensesChart) {
+                popularLensesChart.destroy();
+            }
+
+            popularLensesChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'تعداد فروش',
+                        data: data.data,
+                        backgroundColor: colors.accent + '80',
+                        borderColor: colors.accent,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'تعداد فروش'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    } catch (error) {
+        console.error('خطا در بارگذاری نمودار عدسی‌ها:', error);
+        createSimplePopularChart();
+    }
+}
+
+// تابع ایجاد نمودار ساده برای تست
+function createSimpleChart() {
+    const ctx = document.getElementById('dailyOrdersChart');
+    if (ctx) {
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'],
+                datasets: [{
+                    label: 'سفارشات',
+                    data: [12, 19, 3, 5, 2, 3, 7],
+                    borderColor: colors.primary,
+                    backgroundColor: colors.primary + '20',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+}
+
+function createSimpleStatusChart() {
+    const ctx2 = document.getElementById('statusChart');
+    if (ctx2) {
+        const chart2 = new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: ['در انتظار', 'در حال انجام', 'تکمیل شده', 'لغو شده'],
+                datasets: [{
+                    data: [30, 20, 40, 10],
+                    backgroundColor: [colors.warning, colors.info, colors.success, colors.error]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+}
+
+function createSimpleDeliveredChart() {
+    const ctx = document.getElementById('deliveredItemsChart');
+    if (ctx) {
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'],
+                datasets: [{
+                    label: 'تحویل شده',
+                    data: [15, 25, 8, 12, 18, 22, 10],
+                    backgroundColor: colors.success + '80',
+                    borderColor: colors.success,
+                    borderWidth: 1
+                }, {
+                    label: 'در انتظار',
+                    data: [5, 8, 12, 3, 7, 9, 15],
+                    backgroundColor: colors.warning + '80',
+                    borderColor: colors.warning,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+}
+
+function createSimplePopularChart() {
+    const ctx = document.getElementById('popularLensesChart');
+    if (ctx) {
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['عدسی A', 'عدسی B', 'عدسی C', 'عدسی D', 'عدسی E'],
+                datasets: [{
+                    label: 'تعداد فروش',
+                    data: [45, 38, 32, 28, 22],
+                    backgroundColor: colors.accent + '80',
+                    borderColor: colors.accent,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y'
+            }
+        });
+    }
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // ایجاد نمودارها
+    createDailyOrdersChart();
+    createStatusChart();
+    createDeliveredItemsChart();
+    createPopularLensesChart();
+
+    // Event listener برای تغییر فیلتر روزهای نمودار روزانه
+    const dailyChartDays = document.getElementById('dailyChartDays');
+    if (dailyChartDays) {
+        dailyChartDays.addEventListener('change', function() {
+            createDailyOrdersChart();
+        });
+    }
+
+    // Event listener برای تغییر فیلتر روزهای نمودار ایتم‌های تحویل شده
+    const deliveredChartDays = document.getElementById('deliveredChartDays');
+    if (deliveredChartDays) {
+        deliveredChartDays.addEventListener('change', function() {
+            createDeliveredItemsChart();
+        });
+    }
+
+    // Event listener برای تغییر فیلتر دوره
+    const periodFilter = document.getElementById('periodFilter');
+    if (periodFilter) {
+        periodFilter.addEventListener('change', function() {
+            refreshDashboard();
+        });
+    }
+});
+</script>
+{% endblock %}

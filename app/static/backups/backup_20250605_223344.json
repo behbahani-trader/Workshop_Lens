@@ -1,0 +1,218 @@
+{
+  "Order": [
+    {
+      "id": 2,
+      "order_number": "56096809",
+      "customer_id": 3,
+      "total_amount": 200000.0,
+      "payment": 100000.0,
+      "status": "in_progress",
+      "notes": "",
+      "created_at": "2025-06-05T12:20:09",
+      "updated_at": "2025-06-05T12:38:34"
+    },
+    {
+      "id": 3,
+      "order_number": "95485205",
+      "customer_id": 4,
+      "total_amount": 200000.0,
+      "payment": 1000000.0,
+      "status": "in_progress",
+      "notes": "",
+      "created_at": "2025-06-05T12:39:29",
+      "updated_at": "2025-06-05T12:39:47"
+    },
+    {
+      "id": 4,
+      "order_number": "23002089",
+      "customer_id": 2,
+      "total_amount": 100000.0,
+      "payment": 0.0,
+      "status": "completed",
+      "notes": "",
+      "created_at": "2025-06-05T13:14:52",
+      "updated_at": "2025-06-05T13:23:31"
+    },
+    {
+      "id": 6,
+      "order_number": "31923919",
+      "customer_id": 2,
+      "total_amount": 600000.0,
+      "payment": 0.0,
+      "status": "completed",
+      "notes": "",
+      "created_at": "2025-06-05T13:25:08",
+      "updated_at": "2025-06-05T13:35:46"
+    },
+    {
+      "id": 14,
+      "order_number": "02238961",
+      "customer_id": 1,
+      "total_amount": 200000.0,
+      "payment": 0.0,
+      "status": "completed",
+      "notes": "",
+      "created_at": "2025-06-04T00:00:00",
+      "updated_at": "2025-06-05T14:54:04"
+    },
+    {
+      "id": 15,
+      "order_number": "02601315",
+      "customer_id": 3,
+      "total_amount": 300000.0,
+      "payment": 200000.0,
+      "status": "pending",
+      "notes": "",
+      "created_at": "2025-06-05T00:00:00",
+      "updated_at": "2025-06-05T22:27:26"
+    }
+  ],
+  "Customer": [
+    {
+      "id": 1,
+      "first_name": "محسن",
+      "last_name": "مرادی",
+      "phone": "09121071421",
+      "email": "",
+      "address": "",
+      "notes": null,
+      "created_at": "2025-06-05T10:47:04",
+      "updated_at": "2025-06-05T10:59:40.538763",
+      "chat_id": null
+    },
+    {
+      "id": 2,
+      "first_name": "محمد",
+      "last_name": "بهبهانی",
+      "phone": "09123273390",
+      "email": "behbahanizadeh@gmail.com",
+      "address": "",
+      "notes": null,
+      "created_at": "2025-06-05T11:32:38",
+      "updated_at": "2025-06-05T13:14:30.884845",
+      "chat_id": "398487035"
+    },
+    {
+      "id": 3,
+      "first_name": "کامران",
+      "last_name": "صمصامی",
+      "phone": "",
+      "email": "1@1",
+      "address": "",
+      "notes": null,
+      "created_at": "2025-06-05T11:38:11.242169",
+      "updated_at": "2025-06-05T11:38:11.242172",
+      "chat_id": null
+    },
+    {
+      "id": 4,
+      "first_name": "پدیده",
+      "last_name": "پاساژ سعید",
+      "phone": "",
+      "email": "2@2",
+      "address": "",
+      "notes": null,
+      "created_at": "2025-06-05T12:26:40.060458",
+      "updated_at": "2025-06-05T12:26:40.060462",
+      "chat_id": null
+    }
+  ],
+  "LensType": [
+    {
+      "id": 1,
+      "name": "معمولی",
+      "description": "",
+      "default_price": 50000.0,
+      "created_at": "2025-06-05T10:49:05",
+      "updated_at": "2025-06-05T10:49:05"
+    }
+  ],
+  "LensCutType": [
+    {
+      "id": 1,
+      "name": "دوردار و نخ",
+      "description": "",
+      "default_price": 50000.0,
+      "created_at": "2025-06-05T10:54:18.941555",
+      "updated_at": "2025-06-05T10:54:18.941558"
+    },
+    {
+      "id": 2,
+      "name": "تدریجی",
+      "description": "",
+      "default_price": 150000.0,
+      "created_at": "2025-06-05T11:23:36.846735",
+      "updated_at": "2025-06-05T11:29:56.574729"
+    },
+    {
+      "id": 3,
+      "name": "فریم لس",
+      "description": "",
+      "default_price": 150000.0,
+      "created_at": "2025-06-05T11:29:43.921314",
+      "updated_at": "2025-06-05T11:29:43.921317"
+    }
+  ],
+  "OrderLens": [
+    {
+      "id": 2,
+      "order_id": 2,
+      "lens_type_id": 1,
+      "lens_cut_type_id": 3,
+      "quantity": 1,
+      "price": 200000.0,
+      "created_at": "2025-06-05T12:38:34.992465",
+      "updated_at": "2025-06-05T12:38:34.992468"
+    },
+    {
+      "id": 3,
+      "order_id": 3,
+      "lens_type_id": 1,
+      "lens_cut_type_id": 2,
+      "quantity": 1,
+      "price": 200000.0,
+      "created_at": "2025-06-05T12:39:47.827884",
+      "updated_at": "2025-06-05T12:39:47.827887"
+    },
+    {
+      "id": 4,
+      "order_id": 4,
+      "lens_type_id": 1,
+      "lens_cut_type_id": 1,
+      "quantity": 2,
+      "price": 100000.0,
+      "created_at": "2025-06-05T13:14:52.728215",
+      "updated_at": "2025-06-05T13:14:52.728218"
+    },
+    {
+      "id": 6,
+      "order_id": 6,
+      "lens_type_id": 1,
+      "lens_cut_type_id": 3,
+      "quantity": 3,
+      "price": 600000.0,
+      "created_at": "2025-06-05T13:25:08.035685",
+      "updated_at": "2025-06-05T13:25:08.035687"
+    },
+    {
+      "id": 15,
+      "order_id": 14,
+      "lens_type_id": 1,
+      "lens_cut_type_id": 2,
+      "quantity": 1,
+      "price": 200000.0,
+      "created_at": "2025-06-05T14:53:56.426911",
+      "updated_at": "2025-06-05T14:53:56.426916"
+    },
+    {
+      "id": 16,
+      "order_id": 15,
+      "lens_type_id": 1,
+      "lens_cut_type_id": 1,
+      "quantity": 3,
+      "price": 300000.0,
+      "created_at": "2025-06-05T22:31:35.657079",
+      "updated_at": "2025-06-05T22:31:35.657082"
+    }
+  ]
+}

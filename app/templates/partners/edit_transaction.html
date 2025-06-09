@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}ویرایش تراکنش - {{ partner.name }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-base-content mb-2">✏️ ویرایش تراکنش</h1>
+            <div class="breadcrumbs text-sm">
+                <ul>
+                    <li><a href="{{ url_for('main.index') }}" class="text-primary hover:text-primary-focus">داشبورد</a></li>
+                    <li><a href="{{ url_for('partners.index') }}" class="text-primary hover:text-primary-focus">شرکا</a></li>
+                    <li><a href="{{ url_for('partners.show', id=partner.id) }}" class="text-primary hover:text-primary-focus">{{ partner.name }}</a></li>
+                    <li>ویرایش تراکنش</li>
+                </ul>
+            </div>
+        </div>
+        <div class="flex gap-2 mt-4 md:mt-0">
+            <a href="{{ url_for('partners.show', id=partner.id) }}" class="btn btn-outline">
+                <span class="ml-2">↩️</span>
+                بازگشت
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- فرم ویرایش -->
+        <div class="lg:col-span-2">
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title text-xl mb-6">📝 ویرایش تراکنش</h2>
+
+                    <form method="POST" class="space-y-6">
+                        <!-- نوع تراکنش -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text font-medium">نوع تراکنش</span>
+                                <span class="label-text-alt text-error">*</span>
+                            </label>
+                            <div class="flex gap-4">
+                                <label class="label cursor-pointer">
+                                    <input type="radio" name="transaction_type" value="deposit" 
+                                           class="radio radio-success" 
+                                           {{ 'checked' if transaction.transaction_type == 'deposit' else '' }} required>
+                                    <span class="label-text ml-2">💰 واریز</span>
+                                </label>
+                                <label class="label cursor-pointer">
+                                    <input type="radio" name="transaction_type" value="withdrawal" 
+                                           class="radio radio-error" 
+                                           {{ 'checked' if transaction.transaction_type == 'withdrawal' else '' }} required>
+                                    <span class="label-text ml-2">💸 برداشت</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- مبلغ -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text font-medium">مبلغ (تومان)</span>
+                                <span class="label-text-alt text-error">*</span>
+                            </label>
+                            <input type="number" name="amount" 
+                                   value="{{ transaction.amount|int }}"
+                                   placeholder="مبلغ تراکنش را وارد کنید..." 
+                                   class="input input-bordered" required min="1">
+                            <div class="label">
+                                <span class="label-text-alt">مبلغ باید بیشتر از صفر باشد</span>
+                            </div>
+                        </div>
+
+                        <!-- توضیحات -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text font-medium">توضیحات</span>
+                            </label>
+                            <textarea name="description" 
+                                      placeholder="توضیحات تراکنش (اختیاری)..."
+                                      class="textarea textarea-bordered h-24">{{ transaction.description or '' }}</textarea>
+                        </div>
+
+                        <!-- دکمه‌ها -->
+                        <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                            <button type="submit" class="btn btn-success flex-1">
+                                <span class="ml-2">✅</span>
+                                ذخیره تغییرات
+                            </button>
+                            <a href="{{ url_for('partners.show', id=partner.id) }}" class="btn btn-outline flex-1">
+                                <span class="ml-2">❌</span>
+                                انصراف
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- اطلاعات شریک -->
+        <div class="lg:col-span-1">
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h3 class="card-title text-lg mb-4">👤 اطلاعات شریک</h3>
+                    
+                    <div class="space-y-3">
+                        <div>
+                            <div class="text-sm opacity-70">نام شریک</div>
+                            <div class="font-bold">{{ partner.name }}</div>
+                        </div>
+                        
+                        {% if partner.phone %}
+                        <div>
+                            <div class="text-sm opacity-70">تلفن</div>
+                            <div class="font-medium">{{ partner.phone }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        <div>
+                            <div class="text-sm opacity-70">موجودی فعلی</div>
+                            <div class="font-bold text-lg {{ 'text-success' if partner.balance >= 0 else 'text-error' }}">
+                                {{ "{:,}".format(partner.balance|int) }} تومان
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- اطلاعات تراکنش فعلی -->
+            <div class="card bg-base-100 shadow-xl mt-6">
+                <div class="card-body">
+                    <h3 class="card-title text-lg mb-4">📋 تراکنش فعلی</h3>
+                    
+                    <div class="space-y-3">
+                        <div>
+                            <div class="text-sm opacity-70">نوع</div>
+                            <div class="badge {{ 'badge-success' if transaction.transaction_type == 'deposit' else 'badge-error' }}">
+                                {{ 'واریز' if transaction.transaction_type == 'deposit' else 'برداشت' }}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="text-sm opacity-70">مبلغ</div>
+                            <div class="font-bold">{{ "{:,}".format(transaction.amount|int) }} تومان</div>
+                        </div>
+                        
+                        <div>
+                            <div class="text-sm opacity-70">تاریخ ثبت</div>
+                            <div class="text-sm">{{ transaction.jalali_created_at }}</div>
+                        </div>
+                        
+                        {% if transaction.description %}
+                        <div>
+                            <div class="text-sm opacity-70">توضیحات</div>
+                            <div class="text-sm">{{ transaction.description }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// فرمت کردن مبلغ هنگام تایپ
+document.querySelector('input[name="amount"]').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/,/g, '');
+    if (value && !isNaN(value)) {
+        e.target.value = parseInt(value).toLocaleString();
+    }
+});
+
+// حذف کاما قبل از ارسال فرم
+document.querySelector('form').addEventListener('submit', function(e) {
+    const amountInput = document.querySelector('input[name="amount"]');
+    amountInput.value = amountInput.value.replace(/,/g, '');
+});
+</script>
+{% endblock %}

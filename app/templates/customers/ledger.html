@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}دفتر معین مشتری{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">دفتر معین مشتری</h1>
+    <a href="{{ url_for('customers.show', id=customer.id) }}" class="btn btn-ghost">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        بازگشت
+    </a>
+</div>
+
+<div class="card bg-base-100 shadow-xl mb-6">
+    <div class="card-body">
+        <h2 class="card-title">اطلاعات مشتری</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div><span class="text-gray-500">نام:</span> {{ customer.full_name }}</div>
+            <div><span class="text-gray-500">تلفن:</span> {{ customer.phone }}</div>
+            <div><span class="text-gray-500">ایمیل:</span> {{ customer.email or '-' }}</div>
+            <div><span class="text-gray-500">آدرس:</span> {{ customer.address or '-' }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="card bg-base-100 shadow-xl mb-6">
+    <div class="card-body">
+        <h2 class="card-title">وضعیت مالی</h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <div class="text-gray-500">جمع کل سفارش‌ها</div>
+                <div class="font-bold">{{ '{:,}'.format(total_amount|int) }} تومان</div>
+            </div>
+            <div>
+                <div class="text-gray-500">جمع پرداختی</div>
+                <div class="font-bold">{{ '{:,}'.format(total_payment|int) }} تومان</div>
+            </div>
+            <div>
+                <div class="text-gray-500">مانده حساب</div>
+                <div class="font-bold">{{ '{:,}'.format(balance|int) }} تومان</div>
+            </div>
+            <div>
+                <div class="text-gray-500">وضعیت بدهی</div>
+                <div class="font-bold {% if balance > 0 %}text-error{% else %}text-success{% endif %}">{{ status }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+        <h2 class="card-title">لیست سفارش‌ها</h2>
+        <div class="overflow-x-auto">
+            <table class="table w-full">
+                <thead>
+                    <tr>
+                        <th>شماره سفارش</th>
+                        <th>تاریخ ثبت</th>
+                        <th>مبلغ کل</th>
+                        <th>پرداختی</th>
+                        <th>مانده این سفارش</th>
+                        <th>وضعیت</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>{{ order.order_number }}</td>
+                        <td>{{ order.jalali_created_at }}</td>
+                        <td>{{ '{:,}'.format(order.total_amount|int) }} تومان</td>
+                        <td>{{ '{:,}'.format(order.payment|int) }} تومان</td>
+                        <td>{{ '{:,}'.format((order.total_amount - order.payment)|int) }} تومان</td>
+                        <td><span class="badge badge-{{ order.status_color }}">{{ order.status_display }}</span></td>
+                        <td><a href="{{ url_for('orders.show', id=order.id) }}" class="btn btn-ghost btn-xs">مشاهده</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 

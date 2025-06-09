@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}جزئیات مشتری{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">جزئیات مشتری</h1>
+    <div class="flex gap-2">
+        <a href="{{ url_for('customers.edit', id=customer.id) }}" class="btn btn-ghost">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            ویرایش
+        </a>
+        <a href="{{ url_for('customers.ledger', id=customer.id) }}" class="btn btn-info">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 014-4h4m0 0V7m0 4l-4-4m0 0l-4 4" />
+            </svg>
+            دفتر معین
+        </a>
+        <a href="{{ url_for('customers.index') }}" class="btn btn-ghost">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            بازگشت
+        </a>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="card bg-base-100 shadow-xl lg:col-span-1">
+        <div class="card-body">
+            <h2 class="card-title">اطلاعات مشتری</h2>
+            <div class="space-y-4">
+                <div>
+                    <div class="text-sm text-base-content/70">نام و نام خانوادگی</div>
+                    <div class="font-medium">{{ customer.full_name }}</div>
+                </div>
+                <div>
+                    <div class="text-sm text-base-content/70">تلفن</div>
+                    <div class="font-medium">{{ customer.phone }}</div>
+                </div>
+                {% if customer.email %}
+                <div>
+                    <div class="text-sm text-base-content/70">ایمیل</div>
+                    <div class="font-medium">{{ customer.email }}</div>
+                </div>
+                {% endif %}
+                {% if customer.address %}
+                <div>
+                    <div class="text-sm text-base-content/70">آدرس</div>
+                    <div class="font-medium">{{ customer.address }}</div>
+                </div>
+                {% endif %}
+                <div>
+                    <div class="text-sm text-base-content/70">تاریخ ثبت</div>
+                    <div class="font-medium">{{ customer.created_at.strftime('%Y/%m/%d') }}</div>
+                </div>
+                <div>
+                    <div class="text-sm text-base-content/70">مانده حساب</div>
+                    <div class="font-medium">{{ customer.balance }} تومان</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card bg-base-100 shadow-xl lg:col-span-2">
+        <div class="card-body">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="card-title">سفارشات</h2>
+                <a href="{{ url_for('orders.new', customer_id=customer.id) }}" class="btn btn-primary btn-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    سفارش جدید
+                </a>
+            </div>
+            
+            {% if orders %}
+            <div class="overflow-x-auto">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>شماره سفارش</th>
+                            <th>تاریخ</th>
+                            <th>وضعیت</th>
+                            <th>مبلغ</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>{{ order.order_number }}</td>
+                            <td>{{ order.created_at.strftime('%Y/%m/%d') }}</td>
+                            <td>
+                                <div class="badge badge-{{ order.status_color }}">{{ order.status }}</div>
+                            </td>
+                            <td>{{ order.total_amount }} تومان</td>
+                            <td>
+                                <a href="{{ url_for('orders.show', id=order.id) }}" class="btn btn-ghost btn-xs">مشاهده</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-8">
+                <p class="text-base-content/70">این مشتری هنوز سفارشی ثبت نکرده است.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

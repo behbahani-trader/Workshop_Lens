@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}جزئیات سفارش{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">سفارش {{ order.order_number }}</h1>
+        <div class="flex gap-2">
+            <a href="{{ url_for('orders.edit', id=order.id) }}" class="btn btn-info">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                ویرایش
+            </a>
+            <form method="POST" action="{{ url_for('orders.delete', id=order.id) }}" class="inline" onsubmit="return confirm('آیا از حذف این سفارش اطمینان دارید؟');">
+                <button type="submit" class="btn btn-error">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    حذف
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- اطلاعات سفارش -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- اطلاعات مشتری -->
+                <div>
+                    <h2 class="text-lg font-semibold mb-4">اطلاعات مشتری</h2>
+                    <p class="mb-2">
+                        <span class="text-gray-500">نام:</span>
+                        <span class="font-semibold">{{ order.customer.full_name }}</span>
+                    </p>
+                    <p class="mb-2">
+                        <span class="text-gray-500">تلفن:</span>
+                        <span class="font-semibold">{{ order.customer.phone }}</span>
+                    </p>
+                </div>
+
+                <!-- اطلاعات سفارش -->
+                <div>
+                    <h2 class="text-lg font-semibold mb-4">اطلاعات سفارش</h2>
+                    <p class="mb-2">
+                        <span class="text-gray-500">شماره سفارش:</span>
+                        <span class="font-semibold">{{ order.order_number }}</span>
+                    </p>
+                    <p class="mb-2">
+                        <span class="text-gray-500">تاریخ ثبت:</span>
+                        <span class="font-semibold">{{ order.jalali_created_at }}</span>
+                    </p>
+                    <p class="mb-2">
+                        <span class="text-gray-500">تاریخ تحویل:</span>
+                        <span class="font-semibold">{{ order.jalali_delivery_date }}</span>
+                    </p>
+                    <p class="mb-2">
+                        <span class="text-gray-500">وضعیت:</span>
+                        <span class="badge badge-{{ order.status_color }} font-bold">{{ order.status_display }}</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- وضعیت سفارش -->
+            <div class="mt-6">
+                <h2 class="text-lg font-semibold mb-4">تغییر وضعیت</h2>
+                <div class="flex gap-2">
+                    {% if order.status != 'pending' %}
+                    <form method="POST" action="{{ url_for('orders.update_status', id=order.id) }}" class="inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="status" value="pending">
+                        <button type="submit" class="btn btn-ghost">در انتظار</button>
+                    </form>
+                    {% else %}
+                    <button class="btn btn-warning font-bold" disabled>در انتظار</button>
+                    {% endif %}
+                    
+                    {% if order.status != 'in_progress' %}
+                    <form method="POST" action="{{ url_for('orders.update_status', id=order.id) }}" class="inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="status" value="in_progress">
+                        <button type="submit" class="btn btn-ghost">در حال انجام</button>
+                    </form>
+                    {% else %}
+                    <button class="btn btn-info font-bold" disabled>در حال انجام</button>
+                    {% endif %}
+                    
+                    {% if order.status != 'completed' %}
+                    <form method="POST" action="{{ url_for('orders.update_status', id=order.id) }}" class="inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="status" value="completed">
+                        <button type="submit" class="btn btn-ghost">تکمیل شده</button>
+                    </form>
+                    {% else %}
+                    <button class="btn btn-success font-bold" disabled>تکمیل شده</button>
+                    {% endif %}
+                    
+                    {% if order.status != 'cancelled' %}
+                    <form method="POST" action="{{ url_for('orders.update_status', id=order.id) }}" class="inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="status" value="cancelled">
+                        <button type="submit" class="btn btn-ghost">لغو شده</button>
+                    </form>
+                    {% else %}
+                    <button class="btn btn-error font-bold" disabled>لغو شده</button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- اطلاعات مالی -->
+            <div class="mt-6">
+                <h2 class="text-lg font-semibold mb-4">اطلاعات مالی</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-500">مبلغ کل</p>
+                        <p class="font-semibold">{{ order.total_amount }} تومان</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">پرداختی</p>
+                        <p class="font-semibold">{{ order.payment }} تومان</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">مانده</p>
+                        <p class="font-semibold">{{ order.total_amount - order.payment }} تومان</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- لیست عدسی‌ها -->
+    <div class="card bg-base-100 shadow-xl mt-6">
+        <div class="card-body">
+            <h2 class="card-title mb-4">عدسی‌ها</h2>
+            <div class="overflow-x-auto">
+                <table class="table w-full">
+                    <thead>
+                        <tr>
+                            <th>نوع عدسی</th>
+                            <th>نوع تراش</th>
+                            <th>تعداد</th>
+                            <th>قیمت</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for lens in order.lenses %}
+                        <tr>
+                            <td>{{ lens.lens_type.name }}</td>
+                            <td>{{ lens.lens_cut_type.name }}</td>
+                            <td>{{ lens.quantity }}</td>
+                            <td>{{ lens.price }} تومان</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% if order.notes %}
+    <!-- توضیحات -->
+    <div class="card bg-base-100 shadow-xl mt-6">
+        <div class="card-body">
+            <h2 class="card-title">توضیحات</h2>
+            <p class="whitespace-pre-wrap">{{ order.notes }}</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

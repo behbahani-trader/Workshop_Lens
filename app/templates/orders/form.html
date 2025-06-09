@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">{{ title }}</h1>
+        <a href="{{ url_for('orders.index') }}" class="btn btn-ghost">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            بازگشت
+        </a>
+    </div>
+
+    <form method="POST" class="space-y-6">
+        {{ form.csrf_token }}
+        
+        <!-- اطلاعات مشتری و سفارش -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title mb-4">اطلاعات سفارش</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">مشتری</span>
+                        </label>
+                        <div class="flex gap-2">
+                            <select name="customer_id" id="customer-select" class="select select-bordered w-full" required>
+                                <option value="">انتخاب کنید</option>
+                                {% for customer in customers %}
+                                <option value="{{ customer.id }}" {% if form.customer_id.data == customer.id %}selected{% endif %}>
+                                    {{ customer.full_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <div class="join">
+                                <input type="text" id="customer-search" class="input input-bordered join-item" placeholder="جستجوی مشتری...">
+                                <button type="button" id="search-customer" class="btn join-item">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        {% if form.customer_id.errors %}
+                        <label class="label">
+                            <span class="label-text-alt text-error">{{ form.customer_id.errors[0] }}</span>
+                        </label>
+                        {% endif %}
+                    </div>
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">تاریخ ثبت</span>
+                        </label>
+                        {{ form.created_at(class="input input-bordered", type="date") }}
+                        {% if form.created_at.errors %}
+                        <span class="label-text-alt text-error">{{ form.created_at.errors[0] }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">پرداختی</span>
+                        </label>
+                        {{ form.payment(class="input input-bordered", type="number", min="0") }}
+                        {% if form.payment.errors %}
+                        <label class="label">
+                            <span class="label-text-alt text-error">{{ form.payment.errors[0] }}</span>
+                        </label>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- عدسی‌ها -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="card-title">عدسی‌ها</h2>
+                    <button type="button" onclick="addLensRow()" class="btn btn-primary btn-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        افزودن عدسی
+                    </button>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="table w-full">
+                        <thead>
+                            <tr>
+                                <th>نوع عدسی</th>
+                                <th>نوع تراش</th>
+                                <th>تعداد</th>
+                                <th>قیمت</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="lens-container">
+                            <!-- ردیف‌های عدسی اینجا اضافه می‌شوند -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4">
+                    <div class="flex justify-end">
+                        <div class="stat">
+                            <div class="stat-title">مبلغ کل</div>
+                            <div class="stat-value text-2xl" id="total-amount">0 تومان</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- توضیحات -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title">توضیحات</h2>
+                <div class="form-control">
+                    {{ form.notes(class="textarea textarea-bordered h-24") }}
+                    {% if form.notes.errors %}
+                    <label class="label">
+                        <span class="label-text-alt text-error">{{ form.notes.errors[0] }}</span>
+                    </label>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-4">
+            <a href="{{ url_for('orders.index') }}" class="btn btn-ghost">انصراف</a>
+            <button type="submit" class="btn btn-primary">ذخیره</button>
+        </div>
+    </form>
+</div>
+
+<!-- قالب ردیف عدسی -->
+<template id="lens-row-template">
+    <tr class="lens-row">
+        <td>
+            <select name="lens_type_id[]" class="select select-bordered w-full" required onchange="updatePrice(this)">
+                <option value="">انتخاب کنید</option>
+                {% for lens_type in lens_types %}
+                <option value="{{ lens_type.id }}" data-price="{{ lens_type.default_price }}">{{ lens_type.name }}</option>
+                {% endfor %}
+            </select>
+        </td>
+        <td>
+            <select name="lens_cut_type_id[]" class="select select-bordered w-full" required onchange="updatePrice(this)">
+                <option value="">انتخاب کنید</option>
+                {% for lens_cut_type in lens_cut_types %}
+                <option value="{{ lens_cut_type.id }}" data-price="{{ lens_cut_type.default_price }}">{{ lens_cut_type.name }}</option>
+                {% endfor %}
+            </select>
+        </td>
+        <td>
+            <input type="number" name="quantity[]" class="input input-bordered w-full" min="1" value="1" required onchange="updatePrice(this)">
+        </td>
+        <td>
+            <input type="number" name="price[]" class="input input-bordered w-full">
+        </td>
+        <td class="w-10">
+            <button type="button" onclick="removeLensRow(this)" class="btn btn-ghost btn-xs text-error">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+            </button>
+        </td>
+    </tr>
+</template>
+
+{% block scripts %}
+<script>
+function addLensRow() {
+    const template = document.getElementById('lens-row-template');
+    const container = document.getElementById('lens-container');
+    const clone = template.content.cloneNode(true);
+    container.appendChild(clone);
+    updateTotalAmount();
+}
+
+function removeLensRow(button) {
+    const row = button.closest('tr');
+    row.remove();
+    updateTotalAmount();
+}
+
+function updatePrice(element) {
+    const row = element.closest('tr');
+    const lensTypeSelect = row.querySelector('select[name="lens_type_id[]"]');
+    const lensCutTypeSelect = row.querySelector('select[name="lens_cut_type_id[]"]');
+    const quantityInput = row.querySelector('input[name="quantity[]"]');
+    const priceInput = row.querySelector('input[name="price[]"]');
+    
+    if (lensTypeSelect.value && lensCutTypeSelect.value && quantityInput.value) {
+        const lensTypePrice = parseFloat(lensTypeSelect.selectedOptions[0].dataset.price) || 0;
+        const lensCutTypePrice = parseFloat(lensCutTypeSelect.selectedOptions[0].dataset.price) || 0;
+        const quantity = parseInt(quantityInput.value) || 0;
+        
+        // محاسبه قیمت پیش‌فرض
+        const defaultPrice = (lensTypePrice + lensCutTypePrice) * quantity;
+        
+        // اگر قیمت قبلاً تغییر نکرده باشد، قیمت پیش‌فرض را اعمال کن
+        if (!priceInput.dataset.manuallyEdited) {
+            priceInput.value = defaultPrice;
+        }
+    }
+    
+    updateTotalAmount();
+}
+
+function updateTotalAmount() {
+    const priceInputs = document.querySelectorAll('input[name="price[]"]');
+    let total = 0;
+    
+    priceInputs.forEach(input => {
+        if (input.value) {
+            total += parseFloat(input.value);
+        }
+    });
+    
+    document.getElementById('total-amount').textContent = total.toLocaleString() + ' تومان';
+}
+
+// اضافه کردن event listener برای تغییر دستی قیمت
+document.addEventListener('DOMContentLoaded', function() {
+    // فقط اگر در حالت ویرایش عدسی وجود ندارد، یک ردیف جدید اضافه کن
+    {% if not order or not order.lenses %}
+        addLensRow();
+    {% endif %}
+    
+    // اگر در حالت ویرایش هستیم، ردیف‌های قبلی را اضافه می‌کنیم
+    {% if order and order.lenses %}
+        {% for lens in order.lenses %}
+            addLensRow();
+            const lastRow = document.querySelector('.lens-row:last-child');
+            lastRow.querySelector('select[name="lens_type_id[]"]').value = '{{ lens.lens_type_id }}';
+            lastRow.querySelector('select[name="lens_cut_type_id[]"]').value = '{{ lens.lens_cut_type_id }}';
+            lastRow.querySelector('input[name="quantity[]"]').value = '{{ lens.quantity }}';
+            lastRow.querySelector('input[name="price[]"]').value = '{{ lens.price }}';
+        {% endfor %}
+    {% endif %}
+
+    // اضافه کردن event listener برای تغییر دستی قیمت
+    document.addEventListener('input', function(e) {
+        if (e.target.name === 'price[]') {
+            e.target.dataset.manuallyEdited = 'true';
+            updateTotalAmount();
+        }
+    });
+});
+
+// جستجوی مشتری
+document.getElementById('search-customer').addEventListener('click', function() {
+    const searchTerm = document.getElementById('customer-search').value.toLowerCase();
+    const select = document.getElementById('customer-select');
+    const options = select.getElementsByTagName('option');
+    
+    for (let i = 0; i < options.length; i++) {
+        const option = options[i];
+        const text = option.text.toLowerCase();
+        if (text.includes(searchTerm)) {
+            select.value = option.value;
+            break;
+        }
+    }
+});
+
+// جستجو با فشردن Enter
+document.getElementById('customer-search').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('search-customer').click();
+    }
+});
+</script>
+{% endblock %}
+{% endblock %} 

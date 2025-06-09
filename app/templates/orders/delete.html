@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}حذف سفارش{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">حذف سفارش</h1>
+    <a href="{{ url_for('orders.show', id=order.id) }}" class="btn btn-ghost">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        بازگشت
+    </a>
+</div>
+
+<div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+        <h2 class="card-title text-error">آیا از حذف این سفارش اطمینان دارید؟</h2>
+        
+        <div class="mt-4">
+            <p class="font-medium">اطلاعات سفارش:</p>
+            <ul class="list-disc list-inside mt-2">
+                <li>شماره سفارش: {{ order.order_number }}</li>
+                <li>مشتری: {{ order.customer.full_name }}</li>
+                <li>تاریخ ثبت: {{ order.created_at.strftime('%Y/%m/%d') }}</li>
+                <li>وضعیت: {{ order.status_display }}</li>
+            </ul>
+        </div>
+        
+        <div class="mt-6">
+            <p class="text-error">توجه: این عملیات غیرقابل بازگشت است.</p>
+        </div>
+        
+        <div class="card-actions justify-end mt-6">
+            <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-error">حذف سفارش</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

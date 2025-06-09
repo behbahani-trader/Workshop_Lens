@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+
+{% block title %}افزودن تراکنش{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <a href="{{ url_for('partners.index') }}" class="flex items-center gap-2">
+        <span>🤝</span>
+        <span>شرکا</span>
+    </a>
+</li>
+<li class="breadcrumb-item">
+    <a href="{{ url_for('partners.show', id=partner.id) }}" class="flex items-center gap-2">
+        <span>👤</span>
+        <span>{{ partner.name }}</span>
+    </a>
+</li>
+<li class="breadcrumb-item">
+    <span class="flex items-center gap-2 text-primary">
+        <span>💰</span>
+        <span>افزودن تراکنش</span>
+    </span>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+            <h1 class="text-4xl font-bold mb-2">💰 افزودن تراکنش</h1>
+            <p class="text-base-content/70">تراکنش جدید برای {{ partner.name }}</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ url_for('partners.show', id=partner.id) }}" class="btn btn-outline">
+                <span class="ml-2">🔙</span>
+                بازگشت
+            </a>
+        </div>
+    </div>
+
+    <!-- اطلاعات شریک -->
+    <div class="card bg-gradient-to-br from-primary to-primary-focus text-primary-content shadow-xl mb-6">
+        <div class="card-body">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="card-title text-2xl mb-2">👤 {{ partner.name }}</h2>
+                    <p class="text-primary-content/80">
+                        {% if partner.phone %}📞 {{ partner.phone }}{% endif %}
+                        {% if partner.email %}📧 {{ partner.email }}{% endif %}
+                    </p>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm opacity-80">مانده فعلی</div>
+                    <div class="text-2xl font-bold">
+                        {% if partner.balance > 0 %}
+                            <span class="text-success">+{{ "{:,}".format(partner.balance|int) }}</span>
+                        {% elif partner.balance < 0 %}
+                            <span class="text-error">{{ "{:,}".format(partner.balance|int) }}</span>
+                        {% else %}
+                            <span>0</span>
+                        {% endif %}
+                        <span class="text-sm opacity-80">تومان</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- فرم افزودن تراکنش -->
+    <form method="POST" id="transactionForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <!-- نوع تراکنش -->
+        <div class="card bg-base-100 shadow-xl mb-6">
+            <div class="card-header bg-secondary text-secondary-content p-4 rounded-t-2xl">
+                <h2 class="card-title">💰 نوع تراکنش</h2>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-control">
+                        <label class="label cursor-pointer justify-start gap-4">
+                            <input type="radio" name="transaction_type" value="deposit" class="radio radio-success" required />
+                            <div class="flex flex-col">
+                                <span class="label-text font-medium text-success">💵 واریز</span>
+                                <span class="label-text-alt">شریک مبلغی واریز کرده است</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label cursor-pointer justify-start gap-4">
+                            <input type="radio" name="transaction_type" value="withdrawal" class="radio radio-error" required />
+                            <div class="flex flex-col">
+                                <span class="label-text font-medium text-error">💸 برداشت</span>
+                                <span class="label-text-alt">شریک مبلغی برداشت کرده است</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- جزئیات تراکنش -->
+        <div class="card bg-base-100 shadow-xl mb-6">
+            <div class="card-header bg-info text-info-content p-4 rounded-t-2xl">
+                <h2 class="card-title">📋 جزئیات تراکنش</h2>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">مبلغ (تومان)</span>
+                            <span class="label-text-alt text-error">*</span>
+                        </label>
+                        <input type="number" name="amount" placeholder="100000" min="1"
+                               class="input input-bordered" required />
+                        <div class="label">
+                            <span class="label-text-alt">مبلغ به تومان</span>
+                        </div>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">تاریخ تراکنش</span>
+                        </label>
+                        <input type="date" name="transaction_date"
+                               class="input input-bordered" />
+                        <div class="label">
+                            <span class="label-text-alt">تاریخ واقعی انجام تراکنش</span>
+                        </div>
+                    </div>
+
+                    <div class="form-control md:col-span-2">
+                        <label class="label">
+                            <span class="label-text font-medium">شرح تراکنش</span>
+                        </label>
+                        <textarea name="description" placeholder="توضیحات در مورد تراکنش..."
+                                  class="textarea textarea-bordered h-24"></textarea>
+                        <div class="label">
+                            <span class="label-text-alt">جزئیات بیشتر در مورد تراکنش (اختیاری)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- پیش‌نمایش تأثیر -->
+        <div class="card bg-base-100 shadow-xl mb-6" id="impactPreview" style="display: none;">
+            <div class="card-header bg-warning text-warning-content p-4 rounded-t-2xl">
+                <h3 class="card-title">📊 پیش‌نمایش تأثیر</h3>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div>
+                        <div class="text-sm opacity-70">مانده فعلی</div>
+                        <div class="text-lg font-bold" id="currentBalance">{{ "{:,}".format(partner.balance|int) }} تومان</div>
+                    </div>
+                    <div>
+                        <div class="text-sm opacity-70">تغییر</div>
+                        <div class="text-lg font-bold" id="changeAmount">0 تومان</div>
+                    </div>
+                    <div>
+                        <div class="text-sm opacity-70">مانده جدید</div>
+                        <div class="text-lg font-bold" id="newBalance">{{ "{:,}".format(partner.balance|int) }} تومان</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- دکمه‌های عملیات -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <div class="flex flex-col sm:flex-row gap-4 justify-between items-center">
+                    <div class="text-sm text-base-content/70">
+                        <span>⚠️ فیلدهای ستاره‌دار (*) اجباری هستند</span>
+                    </div>
+                    <div class="flex gap-3">
+                        <a href="{{ url_for('partners.show', id=partner.id) }}" class="btn btn-outline">
+                            <span class="ml-2">❌</span>
+                            انصراف
+                        </a>
+                        <button type="button" class="btn btn-info" onclick="previewTransaction()">
+                            <span class="ml-2">👁️</span>
+                            پیش‌نمایش
+                        </button>
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <span class="ml-2">✅</span>
+                            ثبت تراکنش
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const currentBalance = {{ partner.balance }};
+
+function updateImpactPreview() {
+    const amount = parseFloat(document.querySelector('input[name="amount"]').value) || 0;
+    const transactionType = document.querySelector('input[name="transaction_type"]:checked')?.value;
+    
+    if (amount > 0 && transactionType) {
+        const change = transactionType === 'deposit' ? amount : -amount;
+        const newBalance = currentBalance + change;
+        
+        document.getElementById('changeAmount').textContent = 
+            (change > 0 ? '+' : '') + change.toLocaleString('fa-IR') + ' تومان';
+        document.getElementById('changeAmount').className = 
+            'text-lg font-bold ' + (change > 0 ? 'text-success' : 'text-error');
+        
+        document.getElementById('newBalance').textContent = 
+            newBalance.toLocaleString('fa-IR') + ' تومان';
+        document.getElementById('newBalance').className = 
+            'text-lg font-bold ' + (newBalance >= 0 ? 'text-success' : 'text-error');
+        
+        document.getElementById('impactPreview').style.display = 'block';
+    } else {
+        document.getElementById('impactPreview').style.display = 'none';
+    }
+}
+
+function previewTransaction() {
+    const amount = document.querySelector('input[name="amount"]').value || '0';
+    const transactionType = document.querySelector('input[name="transaction_type"]:checked')?.value || 'نامشخص';
+    const transactionDate = document.querySelector('input[name="transaction_date"]').value || 'امروز';
+    const description = document.querySelector('textarea[name="description"]').value || 'ندارد';
+
+    const formattedAmount = parseInt(amount).toLocaleString('fa-IR');
+    const typeText = transactionType === 'deposit' ? 'واریز' : transactionType === 'withdrawal' ? 'برداشت' : 'نامشخص';
+    
+    alert(`پیش‌نمایش تراکنش:\n\nشریک: {{ partner.name }}\nنوع: ${typeText}\nمبلغ: ${formattedAmount} تومان\nتاریخ: ${transactionDate}\nشرح: ${description}`);
+}
+
+// Event listeners
+document.querySelector('input[name="amount"]').addEventListener('input', updateImpactPreview);
+document.querySelectorAll('input[name="transaction_type"]').forEach(radio => {
+    radio.addEventListener('change', updateImpactPreview);
+});
+
+// اعتبارسنجی مبلغ
+document.querySelector('input[name="amount"]').addEventListener('blur', function() {
+    const amount = parseFloat(this.value);
+    if (amount <= 0) {
+        this.setCustomValidity('مبلغ باید بیشتر از صفر باشد');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+
+// تنظیم تاریخ امروز
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    document.querySelector('input[name="transaction_date"]').value = today;
+});
+</script>
+{% endblock %}

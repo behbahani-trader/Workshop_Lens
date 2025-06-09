@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}شرکا{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <span class="flex items-center gap-2 text-primary">
+        <span>🤝</span>
+        <span>شرکا</span>
+    </span>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+            <h1 class="text-4xl font-bold mb-2">🤝 مدیریت شرکا</h1>
+            <p class="text-base-content/70">مدیریت شرکا و تراکنش‌های آنها</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ url_for('partners.report') }}" class="btn btn-info">
+                <span class="ml-2">📊</span>
+                گزارش شرکا
+            </a>
+            <a href="{{ url_for('partners.new') }}" class="btn btn-primary">
+                <span class="ml-2">➕</span>
+                شریک جدید
+            </a>
+        </div>
+    </div>
+
+    <!-- جستجو -->
+    <div class="card bg-base-100 shadow-xl mb-6">
+        <div class="card-body">
+            <form method="GET" class="flex flex-wrap gap-4 items-end">
+                <div class="form-control flex-1 min-w-64">
+                    <label class="label">
+                        <span class="label-text">جستجو در نام شریک</span>
+                    </label>
+                    <input type="text" name="search" value="{{ search }}" placeholder="نام شریک..." class="input input-bordered">
+                </div>
+                <div class="form-control">
+                    <button type="submit" class="btn btn-primary">
+                        <span class="ml-2">🔍</span>
+                        جستجو
+                    </button>
+                </div>
+                {% if search %}
+                <div class="form-control">
+                    <a href="{{ url_for('partners.index') }}" class="btn btn-outline">
+                        <span class="ml-2">🗑️</span>
+                        حذف فیلتر
+                    </a>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <!-- لیست شرکا -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-header bg-primary text-primary-content p-4 rounded-t-2xl">
+            <h3 class="card-title">👥 لیست شرکا</h3>
+        </div>
+        <div class="card-body p-0">
+            {% if partners.items %}
+            <div class="overflow-x-auto">
+                <table class="table table-zebra">
+                    <thead>
+                        <tr>
+                            <th>نام</th>
+                            <th>تلفن</th>
+                            <th>ایمیل</th>
+                            <th>مانده حساب</th>
+                            <th>تاریخ ثبت</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for partner in partners.items %}
+                        <tr>
+                            <td class="font-medium">
+                                <a href="{{ url_for('partners.show', id=partner.id) }}" class="link link-primary">
+                                    {{ partner.name }}
+                                </a>
+                            </td>
+                            <td class="text-sm">
+                                {% if partner.phone %}
+                                    {{ partner.phone }}
+                                {% else %}
+                                    <span class="opacity-50">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-sm">
+                                {% if partner.email %}
+                                    {{ partner.email }}
+                                {% else %}
+                                    <span class="opacity-50">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="font-mono">
+                                {% if partner.balance > 0 %}
+                                    <span class="text-success">+{{ "{:,}".format(partner.balance|int) }}</span>
+                                {% elif partner.balance < 0 %}
+                                    <span class="text-error">{{ "{:,}".format(partner.balance|int) }}</span>
+                                {% else %}
+                                    <span class="opacity-50">0</span>
+                                {% endif %}
+                                <span class="text-xs opacity-60">تومان</span>
+                            </td>
+                            <td class="text-sm opacity-60">{{ partner.created_at.strftime('%Y/%m/%d') }}</td>
+                            <td>
+                                <div class="flex gap-1">
+                                    <a href="{{ url_for('partners.show', id=partner.id) }}" class="btn btn-ghost btn-sm" title="مشاهده جزئیات">
+                                        👁️
+                                    </a>
+                                    <a href="{{ url_for('partners.add_transaction', id=partner.id) }}" class="btn btn-ghost btn-sm" title="افزودن تراکنش">
+                                        💰
+                                    </a>
+                                    <a href="{{ url_for('partners.edit', id=partner.id) }}" class="btn btn-ghost btn-sm" title="ویرایش">
+                                        ✏️
+                                    </a>
+                                    <form method="POST" action="{{ url_for('partners.delete', id=partner.id) }}" class="inline" 
+                                          onsubmit="return confirm('آیا از حذف این شریک اطمینان دارید؟')">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-ghost btn-sm text-error" title="حذف">
+                                            🗑️
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if partners.pages > 1 %}
+            <div class="flex justify-center p-4">
+                <div class="join">
+                    {% if partners.has_prev %}
+                        <a href="{{ url_for('partners.index', page=partners.prev_num, search=search) }}" class="join-item btn">«</a>
+                    {% endif %}
+                    
+                    {% for page_num in partners.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != partners.page %}
+                                <a href="{{ url_for('partners.index', page=page_num, search=search) }}" class="join-item btn">{{ page_num }}</a>
+                            {% else %}
+                                <span class="join-item btn btn-active">{{ page_num }}</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="join-item btn btn-disabled">…</span>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if partners.has_next %}
+                        <a href="{{ url_for('partners.index', page=partners.next_num, search=search) }}" class="join-item btn">»</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            {% else %}
+            <div class="p-8 text-center text-base-content/50">
+                <div class="text-4xl mb-4">🤝</div>
+                <p>
+                    {% if search %}
+                        شریکی با این نام یافت نشد
+                    {% else %}
+                        هنوز شریکی ثبت نشده است
+                    {% endif %}
+                </p>
+                {% if not search %}
+                <a href="{{ url_for('partners.new') }}" class="btn btn-primary mt-4">
+                    <span class="ml-2">➕</span>
+                    اولین شریک را ثبت کنید
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}ورود{% endblock %}
+
+{% block content %}
+<div class="hero min-h-screen bg-base-200">
+    <div class="hero-content flex-col lg:flex-row-reverse">
+        <div class="text-center lg:text-right lg:mr-12">
+            <h1 class="text-5xl font-bold">ورود به سیستم</h1>
+            <p class="py-6">برای دسترسی به سیستم مدیریت عینک‌سازی، لطفاً وارد شوید.</p>
+        </div>
+        <div class="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+            <div class="card-body">
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">نام کاربری</span>
+                        </label>
+                        <input type="text" name="username" placeholder="نام کاربری" class="input input-bordered" required />
+                    </div>
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">رمز عبور</span>
+                        </label>
+                        <input type="password" name="password" placeholder="رمز عبور" class="input input-bordered" required />
+                        <label class="label">
+                            <a href="#" class="label-text-alt link link-hover">رمز عبور را فراموش کرده‌اید؟</a>
+                        </label>
+                    </div>
+                    <div class="form-control mt-6">
+                        <button type="submit" class="btn btn-primary">ورود</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

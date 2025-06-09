@@ -1,0 +1,171 @@
+/* Dark mode styles */
+
+body.dark-mode {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+}
+
+body.dark-mode .wy-nav-content {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+}
+
+body.dark-mode .wy-nav-side {
+    background-color: #2d2d2d;
+}
+
+body.dark-mode .wy-side-nav-search {
+    background-color: #2d2d2d;
+}
+
+body.dark-mode .wy-side-nav-search input[type="text"] {
+    background-color: #3d3d3d;
+    color: #e0e0e0;
+    border-color: #4d4d4d;
+}
+
+body.dark-mode .wy-menu-vertical {
+    background-color: #2d2d2d;
+}
+
+body.dark-mode .wy-menu-vertical li.current {
+    background-color: #3d3d3d;
+}
+
+body.dark-mode .wy-menu-vertical li.current > a {
+    color: #fff;
+}
+
+body.dark-mode .wy-menu-vertical li.current > a:hover {
+    background-color: #4d4d4d;
+}
+
+body.dark-mode .wy-menu-vertical li > a {
+    color: #e0e0e0;
+}
+
+body.dark-mode .wy-menu-vertical li > a:hover {
+    background-color: #3d3d3d;
+}
+
+body.dark-mode .highlight {
+    background-color: #2d2d2d;
+}
+
+body.dark-mode code {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+}
+
+body.dark-mode .admonition {
+    background-color: #2d2d2d;
+    border-color: #4d4d4d;
+}
+
+body.dark-mode .note {
+    background-color: #1a3a4a;
+    border-color: #2980b9;
+}
+
+body.dark-mode .warning {
+    background-color: #4a3a1a;
+    border-color: #ffc107;
+}
+
+body.dark-mode .danger {
+    background-color: #4a1a1a;
+    border-color: #dc3545;
+}
+
+body.dark-mode table.docutils {
+    border-color: #4d4d4d;
+}
+
+body.dark-mode table.docutils th {
+    background-color: #2d2d2d;
+    border-color: #4d4d4d;
+}
+
+body.dark-mode table.docutils td {
+    border-color: #4d4d4d;
+}
+
+body.dark-mode a {
+    color: #4d9cd1;
+}
+
+body.dark-mode a:hover {
+    color: #6db3e6;
+}
+
+body.dark-mode .toc {
+    background-color: #2d2d2d;
+    border-color: #4d4d4d;
+}
+
+body.dark-mode .toc a {
+    color: #4d9cd1;
+}
+
+body.dark-mode .toc a:hover {
+    color: #6db3e6;
+}
+
+body.dark-mode .copy-button {
+    background-color: #2d2d2d;
+    border-color: #4d4d4d;
+    color: #e0e0e0;
+}
+
+body.dark-mode .copy-button:hover {
+    background-color: #3d3d3d;
+}
+
+body.dark-mode .wy-nav-top {
+    background-color: #2d2d2d;
+}
+
+body.dark-mode .wy-nav-top a {
+    color: #e0e0e0;
+}
+
+body.dark-mode .wy-breadcrumbs {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+}
+
+body.dark-mode .wy-breadcrumbs a {
+    color: #4d9cd1;
+}
+
+body.dark-mode .wy-breadcrumbs a:hover {
+    color: #6db3e6;
+}
+
+body.dark-mode .wy-nav-content-wrap {
+    background-color: #1a1a1a;
+}
+
+body.dark-mode .wy-nav-content {
+    background-color: #1a1a1a;
+}
+
+body.dark-mode .wy-nav-content-wrap .wy-nav-content {
+    background-color: #1a1a1a;
+}
+
+body.dark-mode .wy-nav-content-wrap .wy-nav-content .document {
+    background-color: #1a1a1a;
+}
+
+body.dark-mode .wy-nav-content-wrap .wy-nav-content .document .section {
+    background-color: #1a1a1a;
+}
+
+body.dark-mode .wy-nav-content-wrap .wy-nav-content .document .section .section {
+    background-color: #1a1a1a;
+}
+
+body.dark-mode .wy-nav-content-wrap .wy-nav-content .document .section .section .section {
+    background-color: #1a1a1a;
+} 

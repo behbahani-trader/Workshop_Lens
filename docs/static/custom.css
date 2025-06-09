@@ -1,0 +1,126 @@
+/* Custom styles for documentation */
+
+/* RTL support */
+[dir="rtl"] {
+    text-align: right;
+}
+
+[dir="rtl"] .sidebar {
+    float: right;
+}
+
+[dir="rtl"] .content {
+    float: left;
+}
+
+/* Code blocks */
+.highlight {
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    padding: 1em;
+    margin: 1em 0;
+}
+
+/* Tables */
+table.docutils {
+    border: 1px solid #e1e4e5;
+    border-collapse: collapse;
+    margin: 1em 0;
+}
+
+table.docutils th {
+    background-color: #f8f9fa;
+    padding: 0.5em;
+    border: 1px solid #e1e4e5;
+}
+
+table.docutils td {
+    padding: 0.5em;
+    border: 1px solid #e1e4e5;
+}
+
+/* Navigation */
+.wy-nav-side {
+    background: #343131;
+}
+
+.wy-side-nav-search {
+    background-color: #343131;
+}
+
+.wy-side-nav-search input[type="text"] {
+    border-radius: 4px;
+}
+
+/* Headers */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+}
+
+/* Links */
+a {
+    color: #2980b9;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Admonitions */
+.admonition {
+    padding: 1em;
+    margin: 1em 0;
+    border-radius: 4px;
+}
+
+.admonition-title {
+    font-weight: 600;
+    margin-bottom: 0.5em;
+}
+
+.note {
+    background-color: #e7f5fe;
+    border-left: 4px solid #2980b9;
+}
+
+.warning {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+}
+
+.danger {
+    background-color: #f8d7da;
+    border-left: 4px solid #dc3545;
+}
+
+/* Code */
+code {
+    background-color: #f8f9fa;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+/* Images */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Responsive design */
+@media screen and (max-width: 768px) {
+    .wy-nav-content-wrap {
+        margin-left: 0;
+    }
+
+    .wy-nav-side {
+        left: -300px;
+    }
+
+    .wy-nav-side.shift {
+        left: 0;
+    }
+} 

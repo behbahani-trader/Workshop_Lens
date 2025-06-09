@@ -1,0 +1,244 @@
+{
+  "Order": [
+    {
+      "id": 1,
+      "order_number": "15513948",
+      "customer_id": 1,
+      "total_amount": 100000.0,
+      "payment": 0.0,
+      "status": "completed",
+      "notes": "",
+      "created_at": "2025-06-05T12:18:26",
+      "updated_at": "2025-06-05T12:39:37"
+    },
+    {
+      "id": 2,
+      "order_number": "56096809",
+      "customer_id": 3,
+      "total_amount": 200000.0,
+      "payment": 100000.0,
+      "status": "in_progress",
+      "notes": "",
+      "created_at": "2025-06-05T12:20:09",
+      "updated_at": "2025-06-05T12:38:34"
+    },
+    {
+      "id": 3,
+      "order_number": "95485205",
+      "customer_id": 4,
+      "total_amount": 200000.0,
+      "payment": 1000000.0,
+      "status": "in_progress",
+      "notes": "",
+      "created_at": "2025-06-05T12:39:29",
+      "updated_at": "2025-06-05T12:39:47"
+    },
+    {
+      "id": 4,
+      "order_number": "23002089",
+      "customer_id": 2,
+      "total_amount": 100000.0,
+      "payment": 0.0,
+      "status": "completed",
+      "notes": "",
+      "created_at": "2025-06-05T13:14:52",
+      "updated_at": "2025-06-05T13:23:31"
+    },
+    {
+      "id": 5,
+      "order_number": "80501261",
+      "customer_id": 1,
+      "total_amount": 5000000.0,
+      "payment": 0.0,
+      "status": "completed",
+      "notes": "",
+      "created_at": "2025-06-05T13:24:49",
+      "updated_at": "2025-06-05T13:24:52"
+    },
+    {
+      "id": 6,
+      "order_number": "31923919",
+      "customer_id": 2,
+      "total_amount": 600000.0,
+      "payment": 0.0,
+      "status": "completed",
+      "notes": "",
+      "created_at": "2025-06-05T13:25:08",
+      "updated_at": "2025-06-05T13:35:46"
+    },
+    {
+      "id": 7,
+      "order_number": "90692039",
+      "customer_id": 2,
+      "total_amount": 800000.0,
+      "payment": 0.0,
+      "status": "completed",
+      "notes": "",
+      "created_at": "2025-06-05T13:32:58",
+      "updated_at": "2025-06-05T13:42:19"
+    },
+    {
+      "id": 8,
+      "order_number": "33691848",
+      "customer_id": 4,
+      "total_amount": 800000.0,
+      "payment": 0.0,
+      "status": "pending",
+      "notes": "",
+      "created_at": "2025-06-05T13:45:48",
+      "updated_at": "2025-06-05T13:45:48"
+    },
+    {
+      "id": 9,
+      "order_number": "56250054",
+      "customer_id": 2,
+      "total_amount": 100000.0,
+      "payment": 0.0,
+      "status": "completed",
+      "notes": "",
+      "created_at": "2025-06-05T13:46:57",
+      "updated_at": "2025-06-05T14:12:51"
+    },
+    {
+      "id": 10,
+      "order_number": "59984548",
+      "customer_id": 4,
+      "total_amount": 100000.0,
+      "payment": 0.0,
+      "status": "pending",
+      "notes": "",
+      "created_at": "2025-06-05T14:32:52",
+      "updated_at": "2025-06-05T14:32:52"
+    },
+    {
+      "id": 11,
+      "order_number": "02755929",
+      "customer_id": 1,
+      "total_amount": 100000.0,
+      "payment": 0.0,
+      "status": "pending",
+      "notes": "",
+      "created_at": "2025-06-05T14:33:09",
+      "updated_at": "2025-06-05T14:33:09"
+    },
+    {
+      "id": 12,
+      "order_number": "94033109",
+      "customer_id": 1,
+      "total_amount": 200000.0,
+      "payment": 0.0,
+      "status": "pending",
+      "notes": "",
+      "created_at": "2025-06-03T00:00:00",
+      "updated_at": "2025-06-05T14:39:14"
+    },
+    {
+      "id": 13,
+      "order_number": "86627668",
+      "customer_id": 3,
+      "total_amount": 200000.0,
+      "payment": 0.0,
+      "status": "pending",
+      "notes": "",
+      "created_at": "2025-06-03T00:00:00",
+      "updated_at": "2025-06-05T14:53:10"
+    },
+    {
+      "id": 14,
+      "order_number": "02238961",
+      "customer_id": 1,
+      "total_amount": 200000.0,
+      "payment": 0.0,
+      "status": "completed",
+      "notes": "",
+      "created_at": "2025-06-04T00:00:00",
+      "updated_at": "2025-06-05T14:54:04"
+    }
+  ],
+  "Customer": [
+    {
+      "id": 1,
+      "first_name": "محسن",
+      "last_name": "مرادی",
+      "phone": "09121071421",
+      "email": "",
+      "address": "",
+      "notes": null,
+      "created_at": "2025-06-05T10:47:04",
+      "updated_at": "2025-06-05T10:59:40.538763",
+      "chat_id": null
+    },
+    {
+      "id": 2,
+      "first_name": "محمد",
+      "last_name": "بهبهانی",
+      "phone": "09123273390",
+      "email": "behbahanizadeh@gmail.com",
+      "address": "",
+      "notes": null,
+      "created_at": "2025-06-05T11:32:38",
+      "updated_at": "2025-06-05T13:14:30.884845",
+      "chat_id": "398487035"
+    },
+    {
+      "id": 3,
+      "first_name": "کامران",
+      "last_name": "صمصامی",
+      "phone": "",
+      "email": "1@1",
+      "address": "",
+      "notes": null,
+      "created_at": "2025-06-05T11:38:11.242169",
+      "updated_at": "2025-06-05T11:38:11.242172",
+      "chat_id": null
+    },
+    {
+      "id": 4,
+      "first_name": "پدیده",
+      "last_name": "پاساژ سعید",
+      "phone": "",
+      "email": "2@2",
+      "address": "",
+      "notes": null,
+      "created_at": "2025-06-05T12:26:40.060458",
+      "updated_at": "2025-06-05T12:26:40.060462",
+      "chat_id": null
+    }
+  ],
+  "LensType": [
+    {
+      "id": 1,
+      "name": "معمولی",
+      "description": "",
+      "default_price": 50000.0,
+      "created_at": "2025-06-05T10:49:05",
+      "updated_at": "2025-06-05T10:49:05"
+    }
+  ],
+  "LensCutType": [
+    {
+      "id": 1,
+      "name": "دوردار و نخ",
+      "description": "",
+      "default_price": 50000.0,
+      "created_at": "2025-06-05T10:54:18.941555",
+      "updated_at": "2025-06-05T10:54:18.941558"
+    },
+    {
+      "id": 2,
+      "name": "تدریجی",
+      "description": "",
+      "default_price": 150000.0,
+      "created_at": "2025-06-05T11:23:36.846735",
+      "updated_at": "2025-06-05T11:29:56.574729"
+    },
+    {
+      "id": 3,
+      "name": "فریم لس",
+      "description": "",
+      "default_price": 150000.0,
+      "created_at": "2025-06-05T11:29:43.921314",
+      "updated_at": "2025-06-05T11:29:43.921317"
+    }
+  ]
+}

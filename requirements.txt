@@ -1,0 +1,17 @@
+Flask==3.0.2
+Flask-SQLAlchemy==3.1.1
+Flask-Login==0.6.3
+Flask-WTF==1.2.1
+Flask-Migrate==4.0.5
+Flask-Babel==4.0.0
+SQLAlchemy==2.0.28
+Werkzeug==3.0.1
+email-validator==2.1.0.post1
+python-dotenv==1.0.1
+jdatetime==5.2.0
+requests
+pandas==2.2.1
+openpyxl==3.1.2
+reportlab==4.1.0
+arabic-reshaper==3.0.0
+python-bidi==0.4.2 

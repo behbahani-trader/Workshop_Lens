@@ -1,0 +1,27 @@
+/* RTL support for documentation */
+html[dir="rtl"], body[dir="rtl"] {
+    direction: rtl;
+    text-align: right;
+}
+
+[dir="rtl"] .wy-nav-content {
+    text-align: right;
+}
+
+[dir="rtl"] .wy-nav-side {
+    right: 0;
+    left: auto;
+}
+
+[dir="rtl"] .wy-side-nav-search {
+    text-align: right;
+}
+
+[dir="rtl"] .wy-menu-vertical {
+    text-align: right;
+}
+
+[dir="rtl"] table.docutils th,
+[dir="rtl"] table.docutils td {
+    text-align: right;
+}

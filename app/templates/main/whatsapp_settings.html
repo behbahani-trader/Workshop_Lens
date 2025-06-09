@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}تنظیمات ارسال پیام واتساپ{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">تنظیمات ارسال پیام واتساپ</h1>
+    <a href="{{ url_for('main.index') }}" class="btn btn-ghost">بازگشت</a>
+</div>
+
+<div class="card bg-base-100 shadow-xl mb-6">
+    <div class="card-body">
+        <h2 class="card-title">تنظیمات اتصال به واتساپ (UltraMsg)</h2>
+        <form method="post" class="space-y-4">
+            <div class="form-control">
+                <label class="label"><span class="label-text">Instance ID</span></label>
+                <input type="text" name="instance_id" class="input input-bordered w-full max-w-xs" value="{{ instance_id }}" required />
+            </div>
+            <div class="form-control">
+                <label class="label"><span class="label-text">Token</span></label>
+                <input type="text" name="token" class="input input-bordered w-full max-w-xs" value="{{ token }}" required />
+            </div>
+            <button type="submit" class="btn btn-primary">ذخیره و فعال‌سازی</button>
+        </form>
+        <div class="alert alert-info mt-6">
+            <b>راهنما:</b> برای دریافت Instance ID و Token به سایت <a href="https://ultramsg.com/" class="link link-info" target="_blank">UltraMsg</a> مراجعه کنید و پس از ثبت‌نام، مقادیر را اینجا وارد و ذخیره کنید.
+        </div>
+        <div class="alert alert-warning mt-4">
+            <b>نکته مهم درباره شماره مشتری:</b><br>
+            شماره موبایل مشتری باید به فرمت بین‌المللی و بدون صفر وارد شود.<br>
+            <b>مثال صحیح:</b> <span class="font-mono">98912xxxxxxx</span><br>
+            اگر شماره مشتری با ۰۹ شروع شود، سیستم به صورت خودکار آن را به 98 تبدیل می‌کند.
+        </div>
+        <div class="alert alert-success mt-4">
+            <b>ارسال پیام خودکار:</b> هر زمان وضعیت سفارش به <b>تکمیل شده</b> تغییر کند، پیام زیر برای مشتری ارسال می‌شود:<br>
+            <span class="font-mono">سفارش شما آماده تحویل است.</span>
+        </div>
+    </div>
+</div>
+{% endblock %} 

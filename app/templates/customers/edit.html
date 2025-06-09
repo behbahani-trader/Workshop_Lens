@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}ویرایش مشتری{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">ویرایش مشتری</h1>
+    <a href="{{ url_for('customers.show', id=customer.id) }}" class="btn btn-ghost">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        بازگشت
+    </a>
+</div>
+
+<div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">نام</span>
+                    </label>
+                    <input type="text" name="first_name" placeholder="نام" class="input input-bordered" value="{{ customer.first_name }}" required />
+                </div>
+                
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">نام خانوادگی</span>
+                    </label>
+                    <input type="text" name="last_name" placeholder="نام خانوادگی" class="input input-bordered" value="{{ customer.last_name }}" required />
+                </div>
+                
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">تلفن</span>
+                    </label>
+                    <input type="tel" name="phone" placeholder="تلفن" class="input input-bordered" value="{{ customer.phone }}" />
+                </div>
+                
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">ایمیل</span>
+                    </label>
+                    <input type="email" name="email" placeholder="ایمیل" class="input input-bordered" value="{{ customer.email }}" />
+                </div>
+                
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">chat_id تلگرام</span>
+                    </label>
+                    <input type="text" name="chat_id" placeholder="chat_id تلگرام (اختیاری)" class="input input-bordered" value="{{ customer.chat_id or '' }}" />
+                </div>
+                
+                <div class="form-control md:col-span-2">
+                    <label class="label">
+                        <span class="label-text">آدرس</span>
+                    </label>
+                    <textarea name="address" placeholder="آدرس" class="textarea textarea-bordered h-24">{{ customer.address }}</textarea>
+                </div>
+
+                <div class="form-control md:col-span-2">
+                    <label class="label cursor-pointer justify-start gap-4">
+                        <input type="checkbox" name="is_vip" class="checkbox checkbox-primary"
+                               {% if customer.is_vip %}checked{% endif %} />
+                        <div class="flex flex-col">
+                            <span class="label-text font-medium">⭐ مشتری VIP</span>
+                            <span class="label-text-alt">مشتریان VIP از تخفیف‌ها و خدمات ویژه بهره‌مند می‌شوند</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-control mt-6">
+                <button type="submit" class="btn btn-primary">بروزرسانی مشتری</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

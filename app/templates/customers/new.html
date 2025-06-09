@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}مشتری جدید{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <a href="{{ url_for('customers.index') }}" class="flex items-center gap-2">
+        <span>👥</span>
+        <span>مشتریان</span>
+    </a>
+</li>
+<li class="breadcrumb-item">
+    <span class="flex items-center gap-2 text-primary">
+        <span>👤➕</span>
+        <span>مشتری جدید</span>
+    </span>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+            <h1 class="text-4xl font-bold mb-2">👤➕ ثبت مشتری جدید</h1>
+            <p class="text-base-content/70">اطلاعات مشتری جدید را وارد کنید</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ url_for('customers.index') }}" class="btn btn-outline">
+                <span class="ml-2">🔙</span>
+                بازگشت
+            </a>
+            <button type="button" class="btn btn-ghost" onclick="resetForm()">
+                <span class="ml-2">🔄</span>
+                پاک کردن فرم
+            </button>
+        </div>
+    </div>
+
+    <!-- فرم ثبت مشتری -->
+    <form method="POST" id="customerForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <!-- اطلاعات شخصی -->
+        <div class="card bg-base-100 shadow-xl mb-6">
+            <div class="card-header bg-primary text-primary-content p-4 rounded-t-2xl">
+                <h2 class="card-title">👤 اطلاعات شخصی</h2>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">نام</span>
+                            <span class="label-text-alt text-error">*</span>
+                        </label>
+                        <input type="text" name="first_name" placeholder="نام مشتری"
+                               class="input input-bordered" required />
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">نام خانوادگی</span>
+                            <span class="label-text-alt text-error">*</span>
+                        </label>
+                        <input type="text" name="last_name" placeholder="نام خانوادگی"
+                               class="input input-bordered" required />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اطلاعات تماس -->
+        <div class="card bg-base-100 shadow-xl mb-6">
+            <div class="card-header bg-secondary text-secondary-content p-4 rounded-t-2xl">
+                <h2 class="card-title">📞 اطلاعات تماس</h2>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">شماره تلفن</span>
+                        </label>
+                        <input type="tel" name="phone" placeholder="09123456789"
+                               class="input input-bordered" pattern="[0-9]{11}" />
+                        <div class="label">
+                            <span class="label-text-alt">مثال: 09123456789</span>
+                        </div>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">آدرس ایمیل</span>
+                        </label>
+                        <input type="email" name="email" placeholder="example@email.com"
+                               class="input input-bordered" />
+                        <div class="label">
+                            <span class="label-text-alt">برای ارسال اطلاعیه‌ها</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اطلاعات اضافی -->
+        <div class="card bg-base-100 shadow-xl mb-6">
+            <div class="card-header bg-info text-info-content p-4 rounded-t-2xl">
+                <h2 class="card-title">📍 اطلاعات اضافی</h2>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">Chat ID تلگرام</span>
+                        </label>
+                        <input type="text" name="chat_id" placeholder="123456789"
+                               class="input input-bordered" />
+                        <div class="label">
+                            <span class="label-text-alt">برای ارسال پیام تلگرام (اختیاری)</span>
+                        </div>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">آدرس</span>
+                        </label>
+                        <textarea name="address" placeholder="آدرس کامل مشتری..."
+                                  class="textarea textarea-bordered h-24"></textarea>
+                        <div class="label">
+                            <span class="label-text-alt">آدرس کامل برای ارسال (اختیاری)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- نوع مشتری -->
+                <div class="divider">نوع مشتری</div>
+                <div class="form-control">
+                    <label class="label cursor-pointer justify-start gap-4">
+                        <input type="checkbox" name="is_vip" class="checkbox checkbox-primary" />
+                        <div class="flex flex-col">
+                            <span class="label-text font-medium">⭐ مشتری VIP</span>
+                            <span class="label-text-alt">مشتریان VIP از تخفیف‌ها و خدمات ویژه بهره‌مند می‌شوند</span>
+                        </div>
+                    </label></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- دکمه‌های عملیات -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <div class="flex flex-col sm:flex-row gap-4 justify-between items-center">
+                    <div class="text-sm text-base-content/70">
+                        <span>⚠️ فیلدهای ستاره‌دار (*) اجباری هستند</span>
+                    </div>
+                    <div class="flex gap-3">
+                        <button type="button" class="btn btn-outline" onclick="resetForm()">
+                            <span class="ml-2">🔄</span>
+                            پاک کردن فرم
+                        </button>
+                        <button type="button" class="btn btn-info" onclick="previewCustomer()">
+                            <span class="ml-2">👁️</span>
+                            پیش‌نمایش
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <span class="ml-2">✅</span>
+                            ثبت مشتری
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function resetForm() {
+    if (confirm('آیا از پاک کردن تمام اطلاعات فرم اطمینان دارید؟')) {
+        document.getElementById('customerForm').reset();
+        document.querySelector('input[name="first_name"]').focus();
+    }
+}
+
+function previewCustomer() {
+    const firstName = document.querySelector('input[name="first_name"]').value || 'نامشخص';
+    const lastName = document.querySelector('input[name="last_name"]').value || 'نامشخص';
+    const phone = document.querySelector('input[name="phone"]').value || 'ندارد';
+    const email = document.querySelector('input[name="email"]').value || 'ندارد';
+
+    alert(`پیش‌نمایش مشتری:\n\nنام کامل: ${firstName} ${lastName}\nتلفن: ${phone}\nایمیل: ${email}`);
+}
+
+// اعتبارسنجی شماره تلفن
+document.querySelector('input[name="phone"]').addEventListener('input', function() {
+    const phone = this.value;
+    if (phone && !/^09\d{9}$/.test(phone)) {
+        this.setCustomValidity('شماره تلفن باید با 09 شروع شده و 11 رقم باشد');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+
+// فوکوس روی اولین فیلد
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelector('input[name="first_name"]').focus();
+});
+</script>
+{% endblock %}

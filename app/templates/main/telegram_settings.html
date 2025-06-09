@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}تنظیمات ربات تلگرام{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">تنظیمات ربات تلگرام</h1>
+    <a href="{{ url_for('main.index') }}" class="btn btn-ghost">بازگشت</a>
+</div>
+
+<div class="card bg-base-100 shadow-xl mb-6">
+    <div class="card-body">
+        <h2 class="card-title">توکن ربات تلگرام</h2>
+        <form method="post" class="space-y-4">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-control">
+                <label class="label"><span class="label-text">Bot Token</span></label>
+                <input type="text" name="token" class="input input-bordered w-full max-w-xs" value="{{ token|default('') }}" required />
+            </div>
+            <div class="mb-3">
+                <label for="message" class="form-label">متن پیام ارسالی به مشتری</label>
+                <textarea class="form-control textarea textarea-bordered textarea-lg w-full" id="message" name="message" rows="4" required>{{ message|default('سفارش شما با {total_lens_count} عدد عدسی آماده تحویل است.') }}</textarea>
+                <div class="form-text">
+                    <p>تگ‌های قابل استفاده در متن پیام:</p>
+                    <ul class="list-disc list-inside">
+                        <li><code>{lens_count}</code> - تعداد عدسی‌های سفارش</li>
+                        <li><code>{customer_name}</code> - نام مشتری</li>
+                        <li><code>{order_number}</code> - شماره سفارش</li>
+                        <li><code>{order_date}</code> - تاریخ سفارش</li>
+                        <li><code>{delivery_date}</code> - تاریخ تحویل</li>
+                        <li><code>{order_amount}</code> - مبلغ سفارش</li>
+                        <li><code>{remaining_amount}</code> - مبلغ باقیمانده</li>
+                        <li><code>{lens_details}</code> - جزئیات عدسی‌ها</li>
+                        <li><code>{total_lens_count}</code> - مجموع تعداد عدسی‌های سفارش</li>
+                    </ul>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">ذخیره و فعال‌سازی</button>
+        </form>
+    </div>
+</div>
+
+<div class="card bg-base-100 shadow-xl mb-6">
+    <div class="card-body">
+        <h2 class="card-title">توضیحات تنظیمات تلگرام</h2>
+        <ol class="list-decimal list-inside space-y-2 mb-4">
+            <li>به <b><a href="https://t.me/BotFather" class="link link-info" target="_blank">BotFather</a></b> در تلگرام بروید و یک ربات جدید بسازید.<br>دستور <code>/newbot</code> را ارسال کنید و نام و یوزرنیم ربات را وارد کنید.</li>
+            <li>پس از ساخت ربات، BotFather به شما یک <b>توکن</b> می‌دهد. این توکن را در فرم بالا وارد و ذخیره کنید.</li>
+            <li>برای دریافت <b>chat_id</b> هر مشتری:
+                <ul class="list-disc list-inside ml-6 mt-2">
+                    <li>مشتری باید به ربات شما در تلگرام یک پیام (مثلاً سلام) ارسال کند.</li>
+                    <li>برای دریافت chat_id، می‌توانید از ربات‌های آماده مثل <a href="https://t.me/getmyid_bot" class="link link-info" target="_blank">@getmyid_bot</a> استفاده کنید یا یک اسکریپت ساده بنویسید تا chat_id را ثبت کند.</li>
+                    <li>chat_id را در فرم ثبت یا ویرایش مشتری وارد کنید.</li>
+                </ul>
+            </li>
+            <li>در متن پیام می‌توانید از تگ‌های زیر استفاده کنید:
+                <ul class="list-disc list-inside ml-6 mt-2">
+                    <li><code>{lens_count}</code> - تعداد عدسی‌های سفارش</li>
+                    <li><code>{customer_name}</code> - نام مشتری</li>
+                    <li><code>{order_number}</code> - شماره سفارش</li>
+                    <li><code>{order_date}</code> - تاریخ سفارش</li>
+                    <li><code>{delivery_date}</code> - تاریخ تحویل</li>
+                    <li><code>{order_amount}</code> - مبلغ سفارش</li>
+                    <li><code>{remaining_amount}</code> - مبلغ باقیمانده</li>
+                    <li><code>{lens_details}</code> - جزئیات عدسی‌ها</li>
+                    <li><code>{total_lens_count}</code> - مجموع تعداد عدسی‌های سفارش</li>
+                </ul>
+            </li>
+            <li>هر زمان وضعیت سفارش به <b>تکمیل شده</b> تغییر کند، پیام شما با جایگزینی تگ‌های بالا به chat_id مشتری ارسال می‌شود.</li>
+            <li>در صورت نیاز به تست، می‌توانید chat_id خودتان را وارد کنید و یک سفارش تستی ثبت و تکمیل کنید.</li>
+        </ol>
+        <div class="alert alert-info mt-4">
+            <b>نکته:</b> اگر مشتری chat_id نداشته باشد، پیام ارسال نمی‌شود.
+        </div>
+        <div class="alert alert-warning mt-4">
+            <b>مثال پیام:</b><br>
+            <pre class="mt-2">سلام {customer_name} عزیز
+سفارش شماره {order_number} شما با {lens_count} عدد عدسی آماده تحویل است.
+جزئیات عدسی‌ها: {lens_details}
+مبلغ سفارش: {order_amount} تومان
+مبلغ باقیمانده: {remaining_amount} تومان</pre>
+        </div>
+    </div>
+</div>
+{% endblock %} 

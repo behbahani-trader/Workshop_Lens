@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}خروج{% endblock %}
+
+{% block content %}
+<div class="hero min-h-screen bg-base-200">
+    <div class="hero-content text-center">
+        <div class="max-w-md">
+            <h1 class="text-5xl font-bold">خروج از سیستم</h1>
+            <p class="py-6">آیا از خروج از سیستم اطمینان دارید؟</p>
+            <form method="POST">
+                <button type="submit" class="btn btn-error">خروج</button>
+                <a href="{{ url_for('main.index') }}" class="btn btn-ghost">انصراف</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

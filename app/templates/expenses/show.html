@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}جزئیات هزینه{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <a href="{{ url_for('expenses.index') }}" class="flex items-center gap-2">
+        <span>💸</span>
+        <span>هزینه‌ها</span>
+    </a>
+</li>
+<li class="breadcrumb-item">
+    <span class="flex items-center gap-2 text-primary">
+        <span>👁️</span>
+        <span>جزئیات هزینه</span>
+    </span>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+            <h1 class="text-4xl font-bold mb-2">💸 {{ expense.title }}</h1>
+            <p class="text-base-content/70">جزئیات هزینه</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ url_for('expenses.index') }}" class="btn btn-outline">
+                <span class="ml-2">🔙</span>
+                بازگشت
+            </a>
+            <a href="{{ url_for('expenses.edit', id=expense.id) }}" class="btn btn-warning">
+                <span class="ml-2">✏️</span>
+                ویرایش
+            </a>
+        </div>
+    </div>
+
+    <!-- اطلاعات هزینه -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- اطلاعات اصلی -->
+        <div class="lg:col-span-2">
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-header bg-error text-error-content p-4 rounded-t-2xl">
+                    <h2 class="card-title">📋 اطلاعات هزینه</h2>
+                </div>
+                <div class="card-body">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="label">
+                                <span class="label-text font-medium">عنوان هزینه</span>
+                            </label>
+                            <div class="p-3 bg-base-200 rounded-lg">
+                                {{ expense.title }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="label">
+                                <span class="label-text font-medium">مبلغ</span>
+                            </label>
+                            <div class="p-3 bg-base-200 rounded-lg font-mono text-error text-lg">
+                                {{ "{:,}".format(expense.amount|int) }} تومان
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="label">
+                                <span class="label-text font-medium">تاریخ هزینه</span>
+                            </label>
+                            <div class="p-3 bg-base-200 rounded-lg">
+                                {{ expense.expense_date.strftime('%Y/%m/%d') }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="label">
+                                <span class="label-text font-medium">تاریخ ثبت</span>
+                            </label>
+                            <div class="p-3 bg-base-200 rounded-lg text-sm opacity-70">
+                                {{ expense.created_at.strftime('%Y/%m/%d %H:%M') }}
+                            </div>
+                        </div>
+
+                        {% if expense.description %}
+                        <div class="md:col-span-2">
+                            <label class="label">
+                                <span class="label-text font-medium">شرح تکمیلی</span>
+                            </label>
+                            <div class="p-3 bg-base-200 rounded-lg">
+                                {{ expense.description }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- آمار و عملیات -->
+        <div class="space-y-6">
+            <!-- آمار -->
+            <div class="card bg-gradient-to-br from-error to-error-focus text-error-content shadow-xl">
+                <div class="card-body text-center">
+                    <h3 class="card-title justify-center mb-4">📊 خلاصه</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="text-3xl font-bold">{{ "{:,}".format(expense.amount|int) }}</div>
+                            <div class="text-sm opacity-80">مبلغ هزینه (تومان)</div>
+                        </div>
+                        <div class="divider divider-error-content opacity-30"></div>
+                        <div class="text-sm opacity-80">
+                            این مبلغ از صندوق اصلی کسر شده است
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- عملیات -->
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-header bg-warning text-warning-content p-4 rounded-t-2xl">
+                    <h3 class="card-title">⚙️ عملیات</h3>
+                </div>
+                <div class="card-body space-y-3">
+                    <a href="{{ url_for('expenses.edit', id=expense.id) }}" class="btn btn-warning btn-block">
+                        <span class="ml-2">✏️</span>
+                        ویرایش هزینه
+                    </a>
+                    
+                    <form method="POST" action="{{ url_for('expenses.delete', id=expense.id) }}" 
+                          onsubmit="return confirm('آیا از حذف این هزینه اطمینان دارید؟\n\nتوجه: مبلغ هزینه به صندوق A برگردانده خواهد شد.')">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-error btn-block">
+                            <span class="ml-2">🗑️</span>
+                            حذف هزینه
+                        </button>
+                    </form>
+                    
+                    <div class="divider"></div>
+                    
+                    <a href="{{ url_for('cashbox.detail', cashbox_name='اصلی') }}" class="btn btn-info btn-block">
+                        <span class="ml-2">🏛️</span>
+                        مشاهده صندوق اصلی
+                    </a>
+                </div>
+            </div>
+
+            <!-- هشدار -->
+            <div class="alert alert-warning">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                <div>
+                    <h3 class="font-bold">توجه!</h3>
+                    <div class="text-xs">
+                        در صورت حذف این هزینه، مبلغ آن به صندوق اصلی برگردانده خواهد شد.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}ثبت کاربر جدید{% endblock %}
+
+{% block content %}
+<div class="hero min-h-screen bg-base-200">
+    <div class="hero-content flex-col lg:flex-row-reverse">
+        <div class="text-center lg:text-right lg:mr-8">
+            <h1 class="text-5xl font-bold">ثبت کاربر جدید</h1>
+            <p class="py-6">برای افزودن کاربر جدید به سیستم، اطلاعات زیر را وارد کنید.</p>
+        </div>
+        <div class="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+            <form class="card-body" method="POST">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">نام کاربری</span>
+                    </label>
+                    <input type="text" name="username" placeholder="نام کاربری" class="input input-bordered" required />
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">ایمیل</span>
+                    </label>
+                    <input type="email" name="email" placeholder="ایمیل" class="input input-bordered" required />
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">رمز عبور</span>
+                    </label>
+                    <input type="password" name="password" placeholder="رمز عبور" class="input input-bordered" required />
+                </div>
+                <div class="form-control">
+                    <label class="label cursor-pointer">
+                        <span class="label-text">دسترسی ادمین</span>
+                        <input type="checkbox" name="is_admin" class="checkbox" />
+                    </label>
+                </div>
+                <div class="form-control mt-6">
+                    <button type="submit" class="btn btn-primary">ثبت کاربر</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,940 @@
+{% extends "base.html" %}
+
+{% block title %}سفارشات{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <span class="flex items-center gap-2 text-primary">
+        <span>📋</span>
+        <span>سفارشات</span>
+    </span>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+            <h1 class="text-4xl font-bold mb-2">📋 مدیریت سفارشات</h1>
+            <p class="text-base-content/70">مشاهده، ویرایش و مدیریت تمام سفارشات</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ url_for('orders.new') }}" class="btn btn-primary btn-lg">
+                <span class="ml-2">➕</span>
+                سفارش جدید
+            </a>
+            <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" class="btn btn-outline btn-lg">
+                    <span class="ml-2">⚙️</span>
+                    عملیات
+                </div>
+                <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-xl bg-base-100 rounded-box w-52">
+                    <li><a href="#" class="flex items-center gap-3"><span>📊</span>گزارش سفارشات</a></li>
+                    <li><a href="#" class="flex items-center gap-3"><span>📤</span>خروجی Excel</a></li>
+                    <li><a href="#" class="flex items-center gap-3"><span>🔄</span>بروزرسانی همه</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- فیلترها و جستجو - فشرده -->
+    <div class="collapse collapse-arrow bg-base-100 shadow-lg mb-6">
+        <input type="checkbox" id="filters-toggle" />
+        <div class="collapse-title min-h-0 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <span class="text-lg font-medium">🔍 جستجو و فیلتر</span>
+                    <div class="badge badge-neutral badge-sm" id="active-filters-count">0 فیلتر فعال</div>
+                </div>
+                <div class="flex gap-2">
+                    <!-- جستجوی سریع -->
+                    <div class="form-control">
+                        <input type="text" id="quick-search" value="{{ search }}"
+                               placeholder="جستجو سریع..."
+                               class="input input-bordered input-sm w-48"
+                               onclick="event.stopPropagation()" />
+                    </div>
+                    <!-- فیلتر سریع وضعیت -->
+                    <select id="quick-status" class="select select-bordered select-sm" onclick="event.stopPropagation()">
+                        <option value="">همه</option>
+                        <option value="pending" {% if status == 'pending' %}selected{% endif %}>⏳ در انتظار</option>
+                        <option value="in_progress" {% if status == 'in_progress' %}selected{% endif %}>🔄 در حال انجام</option>
+                        <option value="completed" {% if status == 'completed' %}selected{% endif %}>✅ تکمیل شده</option>
+                        <option value="cancelled" {% if status == 'cancelled' %}selected{% endif %}>❌ لغو شده</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="collapse-content">
+            <div class="pt-4">
+                <!-- فیلترهای کامل -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                    <!-- جستجوی پیشرفته -->
+                    <div class="form-control">
+                        <label class="label label-text-alt">
+                            <span>🔍 جستجوی پیشرفته</span>
+                        </label>
+                        <input type="text" id="search" value="{{ search }}"
+                               placeholder="شماره سفارش، نام مشتری..."
+                               class="input input-bordered input-sm" />
+                    </div>
+
+                    <!-- فیلتر وضعیت -->
+                    <div class="form-control">
+                        <label class="label label-text-alt">
+                            <span>📊 وضعیت</span>
+                        </label>
+                        <select id="status" class="select select-bordered select-sm">
+                            <option value="">همه وضعیت‌ها</option>
+                            <option value="pending" {% if status == 'pending' %}selected{% endif %}>⏳ در انتظار</option>
+                            <option value="in_progress" {% if status == 'in_progress' %}selected{% endif %}>🔄 در حال انجام</option>
+                            <option value="completed" {% if status == 'completed' %}selected{% endif %}>✅ تکمیل شده</option>
+                            <option value="cancelled" {% if status == 'cancelled' %}selected{% endif %}>❌ لغو شده</option>
+                        </select>
+                    </div>
+
+                    <!-- فیلتر تاریخ -->
+                    <div class="form-control">
+                        <label class="label label-text-alt">
+                            <span>📅 تاریخ</span>
+                        </label>
+                        <select id="date_filter" class="select select-bordered select-sm">
+                            <option value="">همه تاریخ‌ها</option>
+                            <option value="today" {% if date_filter == 'today' %}selected{% endif %}>امروز</option>
+                            <option value="yesterday" {% if date_filter == 'yesterday' %}selected{% endif %}>دیروز</option>
+                            <option value="this_week" {% if date_filter == 'this_week' %}selected{% endif %}>هفته جاری</option>
+                            <option value="last_week" {% if date_filter == 'last_week' %}selected{% endif %}>هفته گذشته</option>
+                            <option value="this_month" {% if date_filter == 'this_month' %}selected{% endif %}>ماه جاری</option>
+                            <option value="last_month" {% if date_filter == 'last_month' %}selected{% endif %}>ماه گذشته</option>
+                        </select>
+                    </div>
+
+                    <!-- فیلتر مبلغ -->
+                    <div class="form-control">
+                        <label class="label label-text-alt">
+                            <span>💰 مبلغ</span>
+                        </label>
+                        <select id="amount_filter" class="select select-bordered select-sm">
+                            <option value="">همه مبالغ</option>
+                            <option value="under_100k">زیر 100 هزار</option>
+                            <option value="100k_500k">100-500 هزار</option>
+                            <option value="500k_1m">500 هزار - 1 میلیون</option>
+                            <option value="over_1m">بالای 1 میلیون</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- ردیف دوم فیلترها -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <!-- مرتب‌سازی -->
+                    <div class="form-control">
+                        <label class="label label-text-alt">
+                            <span>🔄 مرتب‌سازی</span>
+                        </label>
+                        <select id="sort_by" class="select select-bordered select-sm">
+                            <option value="newest">جدیدترین</option>
+                            <option value="oldest">قدیمی‌ترین</option>
+                            <option value="amount_high">مبلغ (زیاد به کم)</option>
+                            <option value="amount_low">مبلغ (کم به زیاد)</option>
+                            <option value="customer_name">نام مشتری</option>
+                        </select>
+                    </div>
+
+                    <!-- تعداد نمایش -->
+                    <div class="form-control">
+                        <label class="label label-text-alt">
+                            <span>📄 تعداد نمایش</span>
+                        </label>
+                        <select id="per_page" class="select select-bordered select-sm">
+                            <option value="15">15 مورد</option>
+                            <option value="25">25 مورد</option>
+                            <option value="50">50 مورد</option>
+                            <option value="100">100 مورد</option>
+                        </select>
+                    </div>
+
+                    <!-- دکمه‌های عملیات -->
+                    <div class="form-control">
+                        <label class="label label-text-alt">
+                            <span>⚙️ عملیات</span>
+                        </label>
+                        <div class="flex gap-2">
+                            <button class="btn btn-outline btn-sm flex-1" onclick="clearFilters()">
+                                <span>🗑️</span>پاک کردن
+                            </button>
+                            <button class="btn btn-outline btn-sm flex-1" onclick="exportFiltered()">
+                                <span>📤</span>خروجی
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- نتایج -->
+                <div class="flex justify-between items-center pt-4 border-t border-base-300">
+                    <div class="text-sm text-base-content/70">
+                        <span id="results-info">
+                            نمایش {{ orders.items|length }} از {{ orders.total }} سفارش
+                        </span>
+                    </div>
+                    <div class="text-xs text-base-content/50">
+                        برای جستجوی سریع از فیلدهای بالا استفاده کنید
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- آمار سریع -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="stat bg-base-100 shadow-lg rounded-2xl">
+            <div class="stat-figure text-primary">
+                <span class="text-2xl">📋</span>
+            </div>
+            <div class="stat-title">کل سفارشات</div>
+            <div class="stat-value text-primary">{{ orders.total }}</div>
+            <div class="stat-desc">در این صفحه: {{ orders.items|length }}</div>
+        </div>
+
+        <div class="stat bg-base-100 shadow-lg rounded-2xl">
+            <div class="stat-figure text-warning">
+                <span class="text-2xl">⏳</span>
+            </div>
+            <div class="stat-title">در انتظار</div>
+            <div class="stat-value text-warning">{{ orders.items|selectattr('status', 'equalto', 'pending')|list|length }}</div>
+            <div class="stat-desc">نیاز به پیگیری</div>
+        </div>
+
+        <div class="stat bg-base-100 shadow-lg rounded-2xl">
+            <div class="stat-figure text-info">
+                <span class="text-2xl">🔄</span>
+            </div>
+            <div class="stat-title">در حال انجام</div>
+            <div class="stat-value text-info">{{ orders.items|selectattr('status', 'equalto', 'in_progress')|list|length }}</div>
+            <div class="stat-desc">در دست اقدام</div>
+        </div>
+
+        <div class="stat bg-base-100 shadow-lg rounded-2xl">
+            <div class="stat-figure text-success">
+                <span class="text-2xl">✅</span>
+            </div>
+            <div class="stat-title">تکمیل شده</div>
+            <div class="stat-value text-success">{{ orders.items|selectattr('status', 'equalto', 'completed')|list|length }}</div>
+            <div class="stat-desc">آماده تحویل</div>
+        </div>
+    </div>
+
+    <!-- لیست سفارش‌ها -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="card-title">📝 لیست سفارشات</h2>
+                <div class="flex gap-2">
+                    <button class="btn btn-sm btn-outline" onclick="selectAll()">
+                        <span class="ml-1">☑️</span>انتخاب همه
+                    </button>
+                    <button class="btn btn-sm btn-outline" onclick="exportSelected()">
+                        <span class="ml-1">📤</span>خروجی انتخاب شده
+                    </button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="table table-zebra w-full">
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" class="checkbox" id="selectAllCheckbox" onchange="toggleAll(this)">
+                            </th>
+                            <th>شماره سفارش</th>
+                            <th>مشتری</th>
+                            <th>تاریخ ثبت</th>
+                            <th>وضعیت</th>
+                            <th>تعداد</th>
+                            <th>مبلغ کل</th>
+                            <th>تسویه</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders.items %}
+                        <tr class="hover">
+                            <td>
+                                <input type="checkbox" class="checkbox order-checkbox" value="{{ order.id }}">
+                            </td>
+                            <td>
+                                <div class="font-mono font-bold text-primary">{{ order.order_number }}</div>
+                            </td>
+                            <td>
+                                <div class="font-bold">{{ order.customer.full_name }}</div>
+                            </td>
+                            <td>
+                                <span class="font-medium">{{ order.created_at.strftime('%Y/%m/%d') if order.created_at else '' }}</span>
+                            </td>
+                            <td>
+                                <div class="dropdown dropdown-end">
+                                    {% if order.status == 'pending' %}
+                                        <div tabindex="0" role="button" class="badge badge-warning gap-2 cursor-pointer">
+                                            <span>⏳</span>در انتظار
+                                        </div>
+                                    {% elif order.status == 'in_progress' %}
+                                        <div tabindex="0" role="button" class="badge badge-info gap-2 cursor-pointer">
+                                            <span>🔄</span>در حال انجام
+                                        </div>
+                                    {% elif order.status == 'completed' %}
+                                        <div tabindex="0" role="button" class="badge badge-success gap-2 cursor-pointer">
+                                            <span>✅</span>تکمیل شده
+                                        </div>
+                                    {% elif order.status == 'cancelled' %}
+                                        <div tabindex="0" role="button" class="badge badge-error gap-2 cursor-pointer">
+                                            <span>❌</span>لغو شده
+                                        </div>
+                                    {% endif %}
+
+                                    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-xl bg-base-100 rounded-box w-52">
+                                        <li class="menu-title">تغییر وضعیت</li>
+                                        {% if order.status != 'pending' %}
+                                        <li>
+                                            <button onclick="updateOrderStatus({{ order.id }}, 'pending', this)" class="flex items-center gap-3 w-full">
+                                                <span>⏳</span>در انتظار
+                                            </button>
+                                        </li>
+                                        {% endif %}
+                                        {% if order.status != 'in_progress' %}
+                                        <li>
+                                            <button onclick="updateOrderStatus({{ order.id }}, 'in_progress', this)" class="flex items-center gap-3 w-full">
+                                                <span>🔄</span>در حال انجام
+                                            </button>
+                                        </li>
+                                        {% endif %}
+                                        {% if order.status != 'completed' %}
+                                        <li>
+                                            <button onclick="updateOrderStatus({{ order.id }}, 'completed', this)" class="flex items-center gap-3 w-full">
+                                                <span>✅</span>تکمیل شده
+                                            </button>
+                                        </li>
+                                        {% endif %}
+                                        {% if order.status != 'cancelled' %}
+                                        <li>
+                                            <button onclick="updateOrderStatus({{ order.id }}, 'cancelled', this)" class="flex items-center gap-3 w-full">
+                                                <span>❌</span>لغو شده
+                                            </button>
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="flex items-center gap-2">
+                                    <div class="badge badge-neutral">
+                                        {{ order.lenses|map(attribute='quantity')|sum if order.lenses else 0 }}
+                                    </div>
+                                    <span class="text-xs opacity-50">عدد</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="flex flex-col">
+                                    <span class="font-bold text-lg">{{ "{:,}".format(order.total_amount|int) }}</span>
+                                    <span class="text-xs opacity-50">تومان</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="flex flex-col gap-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="badge badge-{{ order.settlement_status_color }} badge-sm">
+                                            {{ order.settlement_status_display }}
+                                        </span>
+                                        <button class="btn btn-xs btn-primary" onclick="openSettlementModal({{ order.id }})">
+                                            💰 تسویه
+                                        </button>
+                                    </div>
+                                    {% if order.total_paid_amount > 0 %}
+                                    <div class="text-xs opacity-70">
+                                        {% if order.payment > 0 %}
+                                        پیش‌پرداخت: {{ "{:,}".format(order.payment|int) }}
+                                        {% endif %}
+                                        {% if order.paid_amount > 0 %}
+                                        {% if order.payment > 0 %} | {% endif %}تسویه: {{ "{:,}".format(order.paid_amount|int) }}
+                                        {% endif %}
+                                        {% if order.remaining_amount > 0 %}
+                                        | مانده: {{ "{:,}".format(order.remaining_amount|int) }}
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="dropdown dropdown-end">
+                                    <div tabindex="0" role="button" class="btn btn-ghost btn-sm">
+                                        <span>⚙️</span>
+                                    </div>
+                                    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-xl bg-base-100 rounded-box w-52">
+                                        <li>
+                                            <a href="{{ url_for('orders.show', id=order.id) }}" class="flex items-center gap-3">
+                                                <span>👁️</span>مشاهده جزئیات
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ url_for('orders.edit', id=order.id) }}" class="flex items-center gap-3">
+                                                <span>✏️</span>ویرایش
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="flex items-center gap-3">
+                                                <span>🖨️</span>چاپ فاکتور
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="flex items-center gap-3">
+                                                <span>📋</span>کپی شماره
+                                            </a>
+                                        </li>
+                                        <li><hr class="my-1"></li>
+                                        <li>
+                                            <form method="POST" action="{{ url_for('orders.delete', id=order.id) }}" class="w-full" onsubmit="return confirm('آیا از حذف این سفارش اطمینان دارید؟');">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button type="submit" class="flex items-center gap-3 w-full text-error">
+                                                    <span>🗑️</span>حذف سفارش
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- صفحه‌بندی -->
+            {% if orders.pages > 1 %}
+            <div class="flex justify-center mt-4">
+                <div class="btn-group">
+                    {% if orders.has_prev %}
+                    <a href="{{ url_for('orders.index', page=orders.prev_num, search=search, status=status) }}" class="btn btn-sm">قبلی</a>
+                    {% endif %}
+                    
+                    {% for page_num in orders.iter_pages(left_edge=2, left_current=2, right_current=3, right_edge=2) %}
+                        {% if page_num %}
+                            {% if page_num == orders.page %}
+                            <button class="btn btn-sm btn-active">{{ page_num }}</button>
+                            {% else %}
+                            <a href="{{ url_for('orders.index', page=page_num, search=search, status=status) }}" class="btn btn-sm">{{ page_num }}</a>
+                            {% endif %}
+                        {% else %}
+                            <button class="btn btn-sm btn-disabled">...</button>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if orders.has_next %}
+                    <a href="{{ url_for('orders.index', page=orders.next_num, search=search, status=status) }}" class="btn btn-sm">بعدی</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal تسویه -->
+<dialog id="settlementModal" class="modal">
+    <div class="modal-box w-11/12 max-w-2xl">
+        <form method="dialog">
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+        </form>
+        <h3 class="font-bold text-lg mb-4">💰 تسویه سفارش</h3>
+
+        <div id="settlementContent">
+            <!-- محتوا با JavaScript پر می‌شود -->
+        </div>
+
+        <form id="settlementForm" class="space-y-4">
+            <input type="hidden" id="orderId" name="order_id">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text font-medium">مبلغ پرداختی (تومان)</span>
+                    <span class="label-text-alt text-error">*</span>
+                </label>
+                <input type="number" id="paidAmount" name="paid_amount"
+                       placeholder="مبلغی که مشتری پرداخت کرده..."
+                       class="input input-bordered" required min="1">
+                <div class="label">
+                    <span class="label-text-alt" id="remainingInfo"></span>
+                </div>
+            </div>
+
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text font-medium">یادداشت تسویه</span>
+                </label>
+                <textarea id="settlementNotes" name="settlement_notes"
+                          placeholder="توضیحات اضافی در مورد پرداخت..."
+                          class="textarea textarea-bordered h-20"></textarea>
+            </div>
+
+            <div class="modal-action">
+                <button type="button" class="btn btn-outline" onclick="closeSettlementModal()">انصراف</button>
+                <button type="submit" class="btn btn-success">
+                    <span class="ml-2">✅</span>
+                    ثبت تسویه
+                </button>
+            </div>
+        </form>
+    </div>
+</dialog>
+
+{% block scripts %}
+<script>
+// فیلتر خودکار
+let searchTimeout;
+
+// فیلترهای سریع
+document.getElementById('quick-search').addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        document.getElementById('search').value = this.value;
+        updateFilters();
+    }, 500);
+});
+
+document.getElementById('quick-status').addEventListener('change', function() {
+    document.getElementById('status').value = this.value;
+    updateFilters();
+});
+
+// فیلترهای کامل
+document.getElementById('search').addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        document.getElementById('quick-search').value = this.value;
+        updateFilters();
+    }, 500);
+});
+
+document.getElementById('status').addEventListener('change', function() {
+    document.getElementById('quick-status').value = this.value;
+    updateFilters();
+});
+
+document.getElementById('date_filter').addEventListener('change', updateFilters);
+document.getElementById('amount_filter').addEventListener('change', updateFilters);
+document.getElementById('sort_by').addEventListener('change', updateFilters);
+document.getElementById('per_page').addEventListener('change', updateFilters);
+
+function updateFilters() {
+    const search = document.getElementById('search').value;
+    const status = document.getElementById('status').value;
+    const dateFilter = document.getElementById('date_filter').value;
+    const amountFilter = document.getElementById('amount_filter').value;
+    const sortBy = document.getElementById('sort_by').value;
+    const perPage = document.getElementById('per_page').value;
+
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
+    if (status) params.append('status', status);
+    if (dateFilter) params.append('date_filter', dateFilter);
+    if (amountFilter) params.append('amount_filter', amountFilter);
+    if (sortBy && sortBy !== 'newest') params.append('sort_by', sortBy);
+    if (perPage && perPage !== '15') params.append('per_page', perPage);
+
+    // بروزرسانی شمارنده فیلترهای فعال
+    updateActiveFiltersCount();
+
+    window.location.href = `{{ url_for('orders.index') }}?${params.toString()}`;
+}
+
+function clearFilters() {
+    document.getElementById('quick-search').value = '';
+    document.getElementById('quick-status').value = '';
+    document.getElementById('search').value = '';
+    document.getElementById('status').value = '';
+    document.getElementById('date_filter').value = '';
+    document.getElementById('amount_filter').value = '';
+    document.getElementById('sort_by').value = 'newest';
+    document.getElementById('per_page').value = '15';
+
+    updateActiveFiltersCount();
+    window.location.href = '{{ url_for("orders.index") }}';
+}
+
+// تابع شمارش فیلترهای فعال
+function updateActiveFiltersCount() {
+    const search = document.getElementById('search').value;
+    const status = document.getElementById('status').value;
+    const dateFilter = document.getElementById('date_filter').value;
+    const amountFilter = document.getElementById('amount_filter').value;
+    const sortBy = document.getElementById('sort_by').value;
+    const perPage = document.getElementById('per_page').value;
+
+    let count = 0;
+    if (search) count++;
+    if (status) count++;
+    if (dateFilter) count++;
+    if (amountFilter) count++;
+    if (sortBy && sortBy !== 'newest') count++;
+    if (perPage && perPage !== '15') count++;
+
+    const badge = document.getElementById('active-filters-count');
+    if (count > 0) {
+        badge.textContent = `${count} فیلتر فعال`;
+        badge.className = 'badge badge-primary badge-sm';
+    } else {
+        badge.textContent = '0 فیلتر فعال';
+        badge.className = 'badge badge-neutral badge-sm';
+    }
+}
+function updateActiveFiltersCount() {
+    const search = document.getElementById('search').value;
+    const status = document.getElementById('status').value;
+    const dateFilter = document.getElementById('date_filter').value;
+    const amountFilter = document.getElementById('amount_filter').value;
+    const sortBy = document.getElementById('sort_by').value;
+    const perPage = document.getElementById('per_page').value;
+
+    let count = 0;
+    if (search) count++;
+    if (status) count++;
+    if (dateFilter) count++;
+    if (amountFilter) count++;
+    if (sortBy && sortBy !== 'newest') count++;
+    if (perPage && perPage !== '15') count++;
+
+    const badge = document.getElementById('active-filters-count');
+    if (count > 0) {
+        badge.textContent = `${count} فیلتر فعال`;
+        badge.className = 'badge badge-primary badge-sm';
+    } else {
+        badge.textContent = '0 فیلتر فعال';
+        badge.className = 'badge badge-neutral badge-sm';
+    }
+}
+
+function exportFiltered() {
+    const activeFilters = [];
+    const search = document.getElementById('search').value;
+    const status = document.getElementById('status').value;
+    const dateFilter = document.getElementById('date_filter').value;
+
+    if (search) activeFilters.push(`جستجو: ${search}`);
+    if (status) activeFilters.push(`وضعیت: ${document.getElementById('status').selectedOptions[0].text}`);
+    if (dateFilter) activeFilters.push(`تاریخ: ${document.getElementById('date_filter').selectedOptions[0].text}`);
+
+    if (activeFilters.length === 0) {
+        alert('هیچ فیلتری فعال نیست. همه سفارشات خروجی می‌شود.');
+    } else {
+        alert(`خروجی با فیلترهای زیر:\n${activeFilters.join('\n')}\n\nقابلیت خروجی به زودی اضافه می‌شود.`);
+    }
+}
+
+function saveFilter() {
+    const filterName = prompt('نام فیلتر را وارد کنید:');
+    if (filterName) {
+        // TODO: ذخیره فیلتر در localStorage یا سرور
+        alert(`فیلتر "${filterName}" ذخیره شد.\n\nقابلیت ذخیره فیلتر به زودی کامل می‌شود.`);
+    }
+}
+
+// مدیریت checkbox ها
+function toggleAll(source) {
+    const checkboxes = document.querySelectorAll('.order-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = source.checked;
+    });
+    updateSelectedCount();
+}
+
+function selectAll() {
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    selectAllCheckbox.checked = true;
+    toggleAll(selectAllCheckbox);
+}
+
+function updateSelectedCount() {
+    const selectedCheckboxes = document.querySelectorAll('.order-checkbox:checked');
+    const count = selectedCheckboxes.length;
+
+    // بروزرسانی متن دکمه‌ها
+    const selectAllBtn = document.querySelector('button[onclick="selectAll()"]');
+    const exportBtn = document.querySelector('button[onclick="exportSelected()"]');
+
+    if (count > 0) {
+        selectAllBtn.innerHTML = `<span class="ml-1">☑️</span>انتخاب شده: ${count}`;
+        exportBtn.innerHTML = `<span class="ml-1">📤</span>خروجی ${count} مورد`;
+        exportBtn.disabled = false;
+    } else {
+        selectAllBtn.innerHTML = `<span class="ml-1">☑️</span>انتخاب همه`;
+        exportBtn.innerHTML = `<span class="ml-1">📤</span>خروجی انتخاب شده`;
+        exportBtn.disabled = true;
+    }
+}
+
+function exportSelected() {
+    const selectedCheckboxes = document.querySelectorAll('.order-checkbox:checked');
+    const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+
+    if (selectedIds.length === 0) {
+        alert('لطفاً حداقل یک سفارش انتخاب کنید');
+        return;
+    }
+
+    // فعلاً فقط نمایش پیام
+    alert(`${selectedIds.length} سفارش انتخاب شده:\n${selectedIds.join(', ')}\n\nقابلیت خروجی به زودی اضافه می‌شود.`);
+
+    // TODO: پیاده‌سازی خروجی Excel
+    // const form = document.createElement('form');
+    // form.method = 'POST';
+    // form.action = '/orders/export';
+    // ... rest of implementation
+}
+
+// اضافه کردن event listener به checkbox ها
+document.addEventListener('DOMContentLoaded', function() {
+    const orderCheckboxes = document.querySelectorAll('.order-checkbox');
+    orderCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelectedCount);
+    });
+
+    updateSelectedCount();
+    updateActiveFiltersCount();
+});
+
+// تابع تغییر وضعیت با AJAX
+async function updateOrderStatus(orderId, newStatus, buttonElement) {
+    const statusNames = {
+        'pending': 'در انتظار',
+        'in_progress': 'در حال انجام',
+        'completed': 'تکمیل شده',
+        'cancelled': 'لغو شده'
+    };
+
+    const statusIcons = {
+        'pending': '⏳',
+        'in_progress': '🔄',
+        'completed': '✅',
+        'cancelled': '❌'
+    };
+
+    const statusColors = {
+        'pending': 'badge-warning',
+        'in_progress': 'badge-info',
+        'completed': 'badge-success',
+        'cancelled': 'badge-error'
+    };
+
+    // ذخیره متن اصلی
+    const originalText = buttonElement.innerHTML;
+
+    try {
+        // نمایش loading
+        buttonElement.innerHTML = '<span class="loading loading-spinner loading-xs"></span> در حال تغییر...';
+        buttonElement.disabled = true;
+
+        // ارسال درخواست AJAX
+        const response = await fetch(`/orders/${orderId}/status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: `csrf_token={{ csrf_token() }}&status=${newStatus}`
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+
+            if (result.success) {
+                // پیدا کردن badge وضعیت در جدول
+                const row = buttonElement.closest('tr');
+                const statusBadge = row.querySelector('.badge');
+
+                // بروزرسانی badge
+                statusBadge.className = `badge ${statusColors[newStatus]} gap-2`;
+                statusBadge.innerHTML = `<span>${statusIcons[newStatus]}</span>${statusNames[newStatus]}`;
+
+                // بروزرسانی آمار
+                updateStatsAfterStatusChange();
+
+                // نمایش پیام موفقیت
+                showToast(`وضعیت سفارش به "${statusNames[newStatus]}" تغییر یافت`, 'success');
+
+                // بستن dropdown
+                const dropdown = buttonElement.closest('.dropdown');
+                if (dropdown) {
+                    dropdown.removeAttribute('open');
+                    dropdown.blur();
+                    // کلیک خارج از dropdown برای بستن
+                    document.body.click();
+                }
+
+                // refresh صفحه بعد از 1 ثانیه برای بروزرسانی کامل
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+
+            } else {
+                throw new Error(result.message || 'خطا در تغییر وضعیت');
+            }
+        } else {
+            throw new Error('خطا در ارتباط با سرور');
+        }
+
+    } catch (error) {
+        console.error('Error updating status:', error);
+        showToast('خطا در تغییر وضعیت سفارش', 'error');
+
+    } finally {
+        // همیشه متن اصلی را برگردان و دکمه را فعال کن
+        buttonElement.innerHTML = originalText;
+        buttonElement.disabled = false;
+    }
+}
+
+// تابع نمایش toast notification
+function showToast(message, type = 'info') {
+    // حذف toast های قبلی
+    const existingToasts = document.querySelectorAll('.toast-notification');
+    existingToasts.forEach(toast => toast.remove());
+
+    // ایجاد toast جدید
+    const toast = document.createElement('div');
+    toast.className = `toast-notification alert alert-${type} fixed top-4 right-4 z-50 w-auto max-w-sm shadow-lg`;
+    toast.innerHTML = `
+        <div class="flex items-center gap-2">
+            <span>${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span>
+            <span>${message}</span>
+        </div>
+    `;
+
+    document.body.appendChild(toast);
+
+    // انیمیشن ورود
+    setTimeout(() => {
+        toast.style.transform = 'translateX(0)';
+        toast.style.opacity = '1';
+    }, 10);
+
+    // حذف خودکار بعد از 3 ثانیه
+    setTimeout(() => {
+        toast.style.transform = 'translateX(100%)';
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// تابع بروزرسانی آمار
+function updateStatsAfterStatusChange() {
+    // TODO: بروزرسانی کارت‌های آماری بدون refresh
+    // می‌توان با AJAX آمار جدید را دریافت کرد
+}
+
+// تسویه سفارش
+function openSettlementModal(orderId) {
+    document.getElementById('orderId').value = orderId;
+
+    // دریافت اطلاعات سفارش
+    fetch(`/orders/${orderId}/settlement-history`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('settlementContent').innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 p-4 bg-base-200 rounded-lg">
+                    <div>
+                        <div class="text-sm opacity-70">شماره سفارش</div>
+                        <div class="font-bold">${data.order_number}</div>
+                    </div>
+                    <div>
+                        <div class="text-sm opacity-70">مشتری</div>
+                        <div class="font-bold">${data.customer_name}</div>
+                    </div>
+                    <div>
+                        <div class="text-sm opacity-70">مبلغ کل</div>
+                        <div class="font-bold text-lg">${data.total_amount.toLocaleString()} تومان</div>
+                    </div>
+                    <div>
+                        <div class="text-sm opacity-70">پیش‌پرداخت</div>
+                        <div class="font-bold text-info">${data.prepayment.toLocaleString()} تومان</div>
+                    </div>
+                    <div>
+                        <div class="text-sm opacity-70">تسویه‌های قبلی</div>
+                        <div class="font-bold text-warning">${data.paid_amount.toLocaleString()} تومان</div>
+                    </div>
+                    <div>
+                        <div class="text-sm opacity-70">کل پرداخت شده</div>
+                        <div class="font-bold text-success">${data.total_paid_amount.toLocaleString()} تومان</div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <div class="text-sm opacity-70">مانده</div>
+                        <div class="font-bold text-lg ${data.remaining_amount > 0 ? 'text-error' : 'text-success'}">
+                            ${data.remaining_amount.toLocaleString()} تومان
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // تنظیم حداکثر مبلغ قابل پرداخت
+            document.getElementById('paidAmount').max = data.remaining_amount;
+            document.getElementById('remainingInfo').textContent =
+                `حداکثر قابل پرداخت: ${data.remaining_amount.toLocaleString()} تومان`;
+
+            // نمایش modal
+            document.getElementById('settlementModal').showModal();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('خطا در دریافت اطلاعات سفارش');
+        });
+}
+
+function closeSettlementModal() {
+    document.getElementById('settlementModal').close();
+    document.getElementById('settlementForm').reset();
+}
+
+// ثبت تسویه
+document.getElementById('settlementForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const orderId = document.getElementById('orderId').value;
+    const formData = new FormData(this);
+
+    console.log('Submitting settlement for order:', orderId);
+    console.log('Form data:', Object.fromEntries(formData));
+
+    fetch(`/orders/${orderId}/settle`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        if (data.success) {
+            showToast(data.message, 'success');
+            closeSettlementModal();
+            setTimeout(() => location.reload(), 1000); // بروزرسانی صفحه
+        } else {
+            showToast(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('خطا در ثبت تسویه', 'error');
+    });
+});
+
+// CSS برای toast
+const toastStyles = document.createElement('style');
+toastStyles.textContent = `
+    .toast-notification {
+        transform: translateX(100%);
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+`;
+document.head.appendChild(toastStyles);
+</script>
+{% endblock %}
+{% endblock %} 

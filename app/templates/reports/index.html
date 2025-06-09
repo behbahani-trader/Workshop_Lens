@@ -1,0 +1,491 @@
+{% extends "base.html" %}
+
+{% block title %}گزارشات و تحلیل‌ها{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <span class="flex items-center gap-2 text-primary">
+        <span>📊</span>
+        <span>گزارشات و تحلیل‌ها</span>
+    </span>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+            <h1 class="text-4xl font-bold mb-2">📊 گزارشات و تحلیل‌ها</h1>
+            <p class="text-base-content/70">مشاهده آمار، خروجی گزارشات و مدیریت پشتیبان</p>
+        </div>
+        <div class="flex gap-2">
+            <button class="btn btn-outline" onclick="window.print()">
+                <span class="ml-2">🖨️</span>
+                چاپ صفحه
+            </button>
+            <button class="btn btn-info" onclick="refreshStats()">
+                <span class="ml-2">🔄</span>
+                بروزرسانی آمار
+            </button>
+        </div>
+    </div>
+
+    <!-- آمار سریع -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div class="stat bg-gradient-to-r from-primary to-primary-focus text-primary-content shadow-lg rounded-2xl">
+            <div class="stat-figure text-primary-content/80">
+                <span class="text-3xl">📋</span>
+            </div>
+            <div class="stat-title text-primary-content/80">کل سفارشات</div>
+            <div class="stat-value">{{ total_orders }}</div>
+            <div class="stat-desc text-primary-content/60">فاکتور تولید شده</div>
+        </div>
+
+        <div class="stat bg-gradient-to-r from-success to-success-focus text-success-content shadow-lg rounded-2xl">
+            <div class="stat-figure text-success-content/80">
+                <span class="text-3xl">👥</span>
+            </div>
+            <div class="stat-title text-success-content/80">کل مشتریان</div>
+            <div class="stat-value">{{ total_customers }}</div>
+            <div class="stat-desc text-success-content/60">مشتری ثبت شده</div>
+        </div>
+
+        <div class="stat bg-gradient-to-r from-warning to-warning-focus text-warning-content shadow-lg rounded-2xl">
+            <div class="stat-figure text-warning-content/80">
+                <span class="text-3xl">💰</span>
+            </div>
+            <div class="stat-title text-warning-content/80">کل درآمد</div>
+            <div class="stat-value text-lg">{{ "{:,}".format(total_revenue) }}</div>
+            <div class="stat-desc text-warning-content/60">تومان</div>
+        </div>
+
+        <div class="stat bg-gradient-to-r from-info to-info-focus text-info-content shadow-lg rounded-2xl">
+            <div class="stat-figure text-info-content/80">
+                <span class="text-3xl">📈</span>
+            </div>
+            <div class="stat-title text-info-content/80">امروز</div>
+            <div class="stat-value">{{ today_orders }}</div>
+            <div class="stat-desc text-info-content/60">سفارش جدید</div>
+        </div>
+    </div>
+
+    <!-- گزارشات تفصیلی -->
+    <div class="card bg-base-100 shadow-xl mb-8">
+        <div class="card-header bg-primary text-primary-content p-4 rounded-t-2xl">
+            <h2 class="card-title">📈 گزارشات تفصیلی</h2>
+        </div>
+        <div class="card-body">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- گزارش سفارشات -->
+                <div class="card bg-base-200 shadow-md">
+                    <div class="card-body">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="text-2xl">📋</span>
+                            <h3 class="card-title text-lg">گزارش سفارشات</h3>
+                        </div>
+                        <p class="text-sm text-base-content/70 mb-4">
+                            شامل: شماره سفارش، مشتری، تاریخ، وضعیت، مبلغ، جزئیات عدسی‌ها
+                        </p>
+                        <div class="flex flex-col gap-2">
+                            <a href="{{ url_for('reports.export', type='orders', format='excel') }}" 
+                               class="btn btn-primary btn-sm">
+                                <span class="ml-1">📊</span>
+                                خروجی اکسل
+                            </a>
+                            <a href="{{ url_for('reports.export', type='orders', format='pdf') }}" 
+                               class="btn btn-secondary btn-sm">
+                                <span class="ml-1">📄</span>
+                                خروجی PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- گزارش مشتریان -->
+                <div class="card bg-base-200 shadow-md">
+                    <div class="card-body">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="text-2xl">👥</span>
+                            <h3 class="card-title text-lg">گزارش مشتریان</h3>
+                        </div>
+                        <p class="text-sm text-base-content/70 mb-4">
+                            شامل: نام، تلفن، ایمیل، آدرس، تاریخ ثبت، تعداد سفارشات
+                        </p>
+                        <div class="flex flex-col gap-2">
+                            <a href="{{ url_for('reports.export', type='customers', format='excel') }}" 
+                               class="btn btn-primary btn-sm">
+                                <span class="ml-1">📊</span>
+                                خروجی اکسل
+                            </a>
+                            <a href="{{ url_for('reports.export', type='customers', format='pdf') }}" 
+                               class="btn btn-secondary btn-sm">
+                                <span class="ml-1">📄</span>
+                                خروجی PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- گزارش مالی -->
+                <div class="card bg-base-200 shadow-md">
+                    <div class="card-body">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="text-2xl">💰</span>
+                            <h3 class="card-title text-lg">گزارش مالی</h3>
+                        </div>
+                        <p class="text-sm text-base-content/70 mb-4">
+                            شامل: درآمد روزانه، ماهانه، پرداخت‌ها، باقی‌مانده‌ها
+                        </p>
+                        <div class="flex flex-col gap-2">
+                            <a href="{{ url_for('reports.export', type='financial', format='excel') }}" 
+                               class="btn btn-primary btn-sm">
+                                <span class="ml-1">📊</span>
+                                خروجی اکسل
+                            </a>
+                            <a href="{{ url_for('reports.export', type='financial', format='pdf') }}" 
+                               class="btn btn-secondary btn-sm">
+                                <span class="ml-1">📄</span>
+                                خروجی PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- گزارش انواع عدسی -->
+                <div class="card bg-base-200 shadow-md">
+                    <div class="card-body">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="text-2xl">👓</span>
+                            <h3 class="card-title text-lg">انواع عدسی</h3>
+                        </div>
+                        <p class="text-sm text-base-content/70 mb-4">
+                            شامل: نام، قیمت، توضیحات، تعداد استفاده
+                        </p>
+                        <div class="flex flex-col gap-2">
+                            <a href="{{ url_for('reports.export', type='lens_types', format='excel') }}" 
+                               class="btn btn-primary btn-sm">
+                                <span class="ml-1">📊</span>
+                                خروجی اکسل
+                            </a>
+                            <a href="{{ url_for('reports.export', type='lens_types', format='pdf') }}" 
+                               class="btn btn-secondary btn-sm">
+                                <span class="ml-1">📄</span>
+                                خروجی PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- گزارش انواع تراش -->
+                <div class="card bg-base-200 shadow-md">
+                    <div class="card-body">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="text-2xl">✂️</span>
+                            <h3 class="card-title text-lg">انواع تراش</h3>
+                        </div>
+                        <p class="text-sm text-base-content/70 mb-4">
+                            شامل: نام، قیمت، توضیحات، تعداد استفاده
+                        </p>
+                        <div class="flex flex-col gap-2">
+                            <a href="{{ url_for('reports.export', type='lens_cut_types', format='excel') }}" 
+                               class="btn btn-primary btn-sm">
+                                <span class="ml-1">📊</span>
+                                خروجی اکسل
+                            </a>
+                            <a href="{{ url_for('reports.export', type='lens_cut_types', format='pdf') }}" 
+                               class="btn btn-secondary btn-sm">
+                                <span class="ml-1">📄</span>
+                                خروجی PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- گزارش عملکرد -->
+                <div class="card bg-base-200 shadow-md">
+                    <div class="card-body">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="text-2xl">📈</span>
+                            <h3 class="card-title text-lg">گزارش عملکرد</h3>
+                        </div>
+                        <p class="text-sm text-base-content/70 mb-4">
+                            شامل: آمار روزانه، ماهانه، مقایسه دوره‌ها
+                        </p>
+                        <div class="flex flex-col gap-2">
+                            <a href="{{ url_for('reports.export', type='performance', format='excel') }}" 
+                               class="btn btn-primary btn-sm">
+                                <span class="ml-1">📊</span>
+                                خروجی اکسل
+                            </a>
+                            <a href="{{ url_for('reports.export', type='performance', format='pdf') }}" 
+                               class="btn btn-secondary btn-sm">
+                                <span class="ml-1">📄</span>
+                                خروجی PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نمودارها و تحلیل‌ها -->
+    <div class="card bg-base-100 shadow-xl mb-8">
+        <div class="card-header bg-secondary text-secondary-content p-4 rounded-t-2xl">
+            <h2 class="card-title">📊 نمودارها و تحلیل‌ها</h2>
+        </div>
+        <div class="card-body">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- نمودار سفارشات روزانه -->
+                <div class="card bg-base-200">
+                    <div class="card-body">
+                        <h3 class="card-title mb-4">📈 سفارشات 7 روز اخیر</h3>
+                        <div class="h-64 flex items-center justify-center">
+                            <canvas id="dailyOrdersChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- نمودار درآمد ماهانه -->
+                <div class="card bg-base-200">
+                    <div class="card-body">
+                        <h3 class="card-title mb-4">💰 درآمد ماهانه</h3>
+                        <div class="h-64 flex items-center justify-center">
+                            <canvas id="monthlyRevenueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- نمودار وضعیت سفارشات -->
+                <div class="card bg-base-200">
+                    <div class="card-body">
+                        <h3 class="card-title mb-4">📊 وضعیت سفارشات</h3>
+                        <div class="h-64 flex items-center justify-center">
+                            <canvas id="orderStatusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- نمودار محبوب‌ترین عدسی‌ها -->
+                <div class="card bg-base-200">
+                    <div class="card-body">
+                        <h3 class="card-title mb-4">👓 محبوب‌ترین عدسی‌ها</h3>
+                        <div class="h-64 flex items-center justify-center">
+                            <canvas id="popularLensesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- پشتیبان‌گیری و بازیابی -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-header bg-warning text-warning-content p-4 rounded-t-2xl">
+            <h2 class="card-title">💾 پشتیبان‌گیری و بازیابی</h2>
+        </div>
+        <div class="card-body">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- ایجاد پشتیبان -->
+                <div class="card bg-base-200 shadow-md">
+                    <div class="card-body">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="text-2xl">💾</span>
+                            <h3 class="card-title text-lg">ایجاد پشتیبان</h3>
+                        </div>
+                        <p class="text-sm text-base-content/70 mb-4">
+                            یک نسخه کامل از تمام اطلاعات سیستم (سفارشات، مشتریان، تنظیمات) ایجاد می‌شود.
+                        </p>
+                        <div class="alert alert-info mb-4">
+                            <span class="text-sm">
+                                💡 توصیه می‌شود روزانه پشتیبان تهیه کنید
+                            </span>
+                        </div>
+                        <a href="{{ url_for('reports.backup') }}" class="btn btn-primary btn-block">
+                            <span class="ml-2">💾</span>
+                            ایجاد پشتیبان جدید
+                        </a>
+                    </div>
+                </div>
+
+                <!-- بازیابی پشتیبان -->
+                <div class="card bg-base-200 shadow-md">
+                    <div class="card-body">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="text-2xl">🔄</span>
+                            <h3 class="card-title text-lg">بازیابی پشتیبان</h3>
+                        </div>
+                        <p class="text-sm text-base-content/70 mb-4">
+                            بازیابی اطلاعات از فایل پشتیبان. تمام اطلاعات فعلی جایگزین خواهد شد.
+                        </p>
+                        <div class="alert alert-warning mb-4">
+                            <span class="text-sm">
+                                ⚠️ این عملیات غیرقابل بازگشت است
+                            </span>
+                        </div>
+                        <form method="POST" action="{{ url_for('reports.restore') }}" enctype="multipart/form-data">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <div class="form-control mb-4">
+                                <label class="label">
+                                    <span class="label-text font-medium">انتخاب فایل پشتیبان</span>
+                                </label>
+                                <input type="file" name="backup_file" class="file-input file-input-bordered w-full" 
+                                       accept=".json" required />
+                            </div>
+                            <button type="submit" class="btn btn-warning btn-block" 
+                                    onclick="return confirm('آیا از بازیابی اطلاعات اطمینان دارید؟\n\nتمام اطلاعات فعلی حذف و با اطلاعات پشتیبان جایگزین خواهد شد.\n\nاین عملیات غیرقابل بازگشت است!')">
+                                <span class="ml-2">🔄</span>
+                                بازیابی پشتیبان
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // نمودار سفارشات روزانه
+    const dailyCtx = document.getElementById('dailyOrdersChart').getContext('2d');
+    new Chart(dailyCtx, {
+        type: 'line',
+        data: {
+            labels: {{ daily_labels|safe }},
+            datasets: [{
+                label: 'تعداد سفارشات',
+                data: {{ daily_data|safe }},
+                borderColor: 'rgb(59, 130, 246)',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+
+    // نمودار درآمد ماهانه
+    const monthlyCtx = document.getElementById('monthlyRevenueChart').getContext('2d');
+    new Chart(monthlyCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ monthly_labels|safe }},
+            datasets: [{
+                label: 'درآمد (تومان)',
+                data: {{ monthly_revenue|safe }},
+                backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                borderColor: 'rgb(34, 197, 94)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString() + ' ت';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // نمودار وضعیت سفارشات
+    const statusCtx = document.getElementById('orderStatusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ status_labels|safe }},
+            datasets: [{
+                data: {{ status_data|safe }},
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.8)',   // در حال انجام
+                    'rgba(34, 197, 94, 0.8)',    // تکمیل شده
+                    'rgba(245, 158, 11, 0.8)',   // در انتظار
+                    'rgba(239, 68, 68, 0.8)'     // لغو شده
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // نمودار محبوب‌ترین عدسی‌ها
+    const lensCtx = document.getElementById('popularLensesChart').getContext('2d');
+    new Chart(lensCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ lens_labels|safe }},
+            datasets: [{
+                label: 'تعداد استفاده',
+                data: {{ lens_data|safe }},
+                backgroundColor: 'rgba(168, 85, 247, 0.8)',
+                borderColor: 'rgb(168, 85, 247)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+});
+
+// تابع بروزرسانی آمار
+function refreshStats() {
+    location.reload();
+}
+</script>
+{% endblock %}

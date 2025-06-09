@@ -1,0 +1,900 @@
+{% extends "base.html" %}
+
+{% block title %}📚 مستندات سیستم{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <span class="flex items-center gap-2 text-primary">
+        <i class="fas fa-book"></i>
+        <span>مستندات</span>
+    </span>
+</li>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.docs-nav {
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+}
+.docs-content {
+    scroll-behavior: smooth;
+}
+.code-block {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+.feature-card {
+    background: linear-gradient(135deg, var(--fallback-b1,oklch(var(--b1))), var(--fallback-b2,oklch(var(--b2))));
+    border: 1px solid var(--fallback-b3,oklch(var(--b3)));
+    transition: all 0.3s ease;
+}
+.feature-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+.section-header {
+    border-bottom: 3px solid var(--fallback-p,oklch(var(--p)));
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="text-center mb-12">
+        <h1 class="text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            📚 مستندات سیستم مدیریت عینک‌سازی
+        </h1>
+        <p class="text-xl text-base-content/70 max-w-3xl mx-auto">
+            راهنمای کامل استفاده از سیستم مدیریت لابراتوار صمصام - از نصب تا استفاده پیشرفته
+        </p>
+        <div class="flex justify-center gap-4 mt-6">
+            <div class="badge badge-primary badge-lg">نسخه 3.0.0</div>
+            <div class="badge badge-secondary badge-lg">آخرین بروزرسانی: 1403/09/25</div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <!-- Navigation Sidebar -->
+        <div class="lg:col-span-1">
+            <div class="docs-nav card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h3 class="card-title text-lg mb-4">📑 فهرست مطالب</h3>
+                    <ul class="menu menu-compact">
+                        <li><a href="#introduction" class="text-sm">🏠 معرفی</a></li>
+                        <li><a href="#features" class="text-sm">⭐ قابلیت‌ها</a></li>
+                        <li><a href="#installation" class="text-sm">⚙️ نصب و راه‌اندازی</a></li>
+                        <li><a href="#usage" class="text-sm">📖 راهنمای استفاده</a></li>
+                        <li><a href="#dashboard" class="text-sm">📊 داشبورد</a></li>
+                        <li><a href="#orders" class="text-sm">📋 مدیریت سفارشات</a></li>
+                        <li><a href="#customers" class="text-sm">👥 مدیریت مشتریان</a></li>
+                        <li><a href="#financial" class="text-sm">💰 سیستم مالی</a></li>
+                        <li><a href="#settlement" class="text-sm">💳 تسویه حساب</a></li>
+                        <li><a href="#partners" class="text-sm">🤝 مدیریت شرکا</a></li>
+                        <li><a href="#reports" class="text-sm">📈 گزارش‌گیری</a></li>
+                        <li><a href="#api" class="text-sm">🔌 API</a></li>
+                        <li><a href="#troubleshooting" class="text-sm">🔧 عیب‌یابی</a></li>
+                        <li><a href="#development" class="text-sm">💻 توسعه</a></li>
+                        <li><a href="#changelog" class="text-sm">📝 تاریخچه تغییرات</a></li>
+                        <li><a href="#support" class="text-sm">🆘 پشتیبانی</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="lg:col-span-3 docs-content">
+            <!-- معرفی -->
+            <section id="introduction" class="mb-12">
+                <h2 class="text-3xl font-bold section-header">🏠 معرفی</h2>
+                <div class="card bg-base-100 shadow-xl">
+                    <div class="card-body">
+                        <p class="text-lg leading-relaxed mb-6">
+                            سیستم مدیریت لابراتوار صمصام یک نرم‌افزار جامع و حرفه‌ای برای مدیریت کارگاه‌های عینک‌سازی است.
+                            این سیستم با استفاده از تکنولوژی‌های مدرن طراحی شده و تمامی نیازهای یک لابراتوار عینک‌سازی را پوشش می‌دهد.
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="stat bg-primary/10 rounded-lg">
+                                <div class="stat-title">تکنولوژی</div>
+                                <div class="stat-value text-primary">Flask</div>
+                                <div class="stat-desc">Python Web Framework</div>
+                            </div>
+                            <div class="stat bg-secondary/10 rounded-lg">
+                                <div class="stat-title">پایگاه داده</div>
+                                <div class="stat-value text-secondary">SQLite</div>
+                                <div class="stat-desc">قابل ارتقا به PostgreSQL</div>
+                            </div>
+                            <div class="stat bg-accent/10 rounded-lg">
+                                <div class="stat-title">رابط کاربری</div>
+                                <div class="stat-value text-accent">DaisyUI</div>
+                                <div class="stat-desc">Modern & Responsive</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- قابلیت‌ها -->
+            <section id="features" class="mb-12">
+                <h2 class="text-3xl font-bold section-header">⭐ قابلیت‌ها</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="feature-card card shadow-lg">
+                        <div class="card-body">
+                            <h3 class="card-title text-primary">📋 مدیریت سفارشات</h3>
+                            <ul class="list-disc list-inside space-y-1 text-sm">
+                                <li>ثبت سفارش جدید با جزئیات کامل</li>
+                                <li>ویرایش و بروزرسانی سفارشات</li>
+                                <li>تغییر وضعیت سفارشات</li>
+                                <li>سیستم تسویه حساب پیشرفته</li>
+                                <li>مدیریت پیش‌پرداخت و مانده</li>
+                                <li>چاپ فاکتور و برچسب</li>
+                                <li>پیگیری تاریخ تحویل</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="feature-card card shadow-lg">
+                        <div class="card-body">
+                            <h3 class="card-title text-secondary">👥 مدیریت مشتریان</h3>
+                            <ul class="list-disc list-inside space-y-1 text-sm">
+                                <li>ثبت اطلاعات کامل مشتریان</li>
+                                <li>طبقه‌بندی مشتریان VIP</li>
+                                <li>دفتر معین مشتریان</li>
+                                <li>تاریخچه سفارشات</li>
+                                <li>اطلاعات تماس و آدرس</li>
+                                <li>جستجوی پیشرفته</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="feature-card card shadow-lg">
+                        <div class="card-body">
+                            <h3 class="card-title text-accent">📊 داشبورد پیشرفته</h3>
+                            <ul class="list-disc list-inside space-y-1 text-sm">
+                                <li>نمودارهای تعاملی با Chart.js</li>
+                                <li>آمار فروش روزانه و ماهانه</li>
+                                <li>وضعیت سفارشات</li>
+                                <li>محبوب‌ترین عدسی‌ها</li>
+                                <li>فیلترهای زمانی</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="feature-card card shadow-lg">
+                        <div class="card-body">
+                            <h3 class="card-title text-success">📈 گزارش‌گیری</h3>
+                            <ul class="list-disc list-inside space-y-1 text-sm">
+                                <li>گزارش فروش دوره‌ای</li>
+                                <li>خروجی Excel</li>
+                                <li>آمار مشتریان</li>
+                                <li>گزارش موجودی</li>
+                                <li>تحلیل عملکرد</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="feature-card card shadow-lg">
+                        <div class="card-body">
+                            <h3 class="card-title text-warning">🔧 مدیریت سیستم</h3>
+                            <ul class="list-disc list-inside space-y-1 text-sm">
+                                <li>مدیریت کاربران و مجوزها</li>
+                                <li>پشتیبان‌گیری خودکار</li>
+                                <li>تنظیمات تلگرام</li>
+                                <li>مدیریت انواع عدسی</li>
+                                <li>لاگ سیستم</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="feature-card card shadow-lg">
+                        <div class="card-body">
+                            <h3 class="card-title text-error">💰 سیستم مالی جامع</h3>
+                            <ul class="list-disc list-inside space-y-1 text-sm">
+                                <li>صندوق‌های مالی مجزا (اصلی، A، B)</li>
+                                <li>مدیریت هزینه‌های عملیاتی</li>
+                                <li>سیستم تسویه حساب پیشرفته</li>
+                                <li>مدیریت شرکا و سهام</li>
+                                <li>گزارش‌گیری مالی کامل</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="feature-card card shadow-lg">
+                        <div class="card-body">
+                            <h3 class="card-title text-info">🌐 ویژگی‌های مدرن</h3>
+                            <ul class="list-disc list-inside space-y-1 text-sm">
+                                <li>طراحی Responsive</li>
+                                <li>پشتیبانی کامل از فارسی</li>
+                                <li>تاریخ شمسی</li>
+                                <li>رابط کاربری زیبا</li>
+                                <li>سرعت بالا</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- نصب و راه‌اندازی -->
+            <section id="installation" class="mb-12">
+                <h2 class="text-3xl font-bold section-header">⚙️ نصب و راه‌اندازی</h2>
+
+                <!-- نیازمندی‌ها -->
+                <div class="card bg-base-100 shadow-xl mb-6">
+                    <div class="card-body">
+                        <h3 class="card-title text-lg mb-4">📋 نیازمندی‌های سیستم</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="alert alert-info">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <div>
+                                    <h4 class="font-bold">Python</h4>
+                                    <div class="text-xs">نسخه 3.9 یا بالاتر</div>
+                                </div>
+                            </div>
+                            <div class="alert alert-success">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <div>
+                                    <h4 class="font-bold">Node.js</h4>
+                                    <div class="text-xs">نسخه 16 یا بالاتر (اختیاری)</div>
+                                </div>
+                            </div>
+                            <div class="alert alert-warning">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                </svg>
+                                <div>
+                                    <h4 class="font-bold">مرورگر</h4>
+                                    <div class="text-xs">Chrome, Firefox, Safari</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- نصب سریع -->
+                <div class="card bg-base-100 shadow-xl mb-6">
+                    <div class="card-body">
+                        <h3 class="card-title text-lg mb-4">🚀 نصب سریع (توصیه شده)</h3>
+                        <div class="steps steps-vertical lg:steps-horizontal">
+                            <div class="step step-primary">دانلود</div>
+                            <div class="step step-primary">نصب</div>
+                            <div class="step step-primary">راه‌اندازی</div>
+                            <div class="step">استفاده</div>
+                        </div>
+
+                        <div class="mt-6">
+                            <h4 class="font-semibold mb-3">1️⃣ دانلود پروژه:</h4>
+                            <div class="code-block">git clone https://github.com/samsamlab/lens-workshop.git
+cd lens-workshop</div>
+
+                            <h4 class="font-semibold mb-3 mt-6">2️⃣ ایجاد محیط مجازی:</h4>
+                            <div class="code-block">python -m venv venv
+
+# در ویندوز:
+venv\Scripts\activate
+
+# در لینوکس/مک:
+source venv/bin/activate</div>
+
+                            <h4 class="font-semibold mb-3 mt-6">3️⃣ نصب وابستگی‌ها:</h4>
+                            <div class="code-block">pip install -r requirements.txt</div>
+
+                            <h4 class="font-semibold mb-3 mt-6">4️⃣ راه‌اندازی دیتابیس:</h4>
+                            <div class="code-block">flask db upgrade</div>
+
+                            <h4 class="font-semibold mb-3 mt-6">5️⃣ اجرای برنامه:</h4>
+                            <div class="code-block">python app.py</div>
+
+                            <div class="alert alert-success mt-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>سیستم در آدرس <strong>http://localhost:5000</strong> در دسترس خواهد بود</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- نصب با Docker -->
+                <div class="card bg-base-100 shadow-xl">
+                    <div class="card-body">
+                        <h3 class="card-title text-lg mb-4">🐳 نصب با Docker</h3>
+                        <p class="mb-4">برای استفاده آسان‌تر و جداسازی محیط:</p>
+
+                        <div class="code-block">docker-compose up --build</div>
+
+                        <div class="alert alert-info mt-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>Docker باید روی سیستم شما نصب باشد</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- راهنمای استفاده -->
+            <section id="usage" class="mb-12">
+                <h2 class="text-3xl font-bold section-header">📖 راهنمای استفاده</h2>
+
+                <!-- احراز هویت -->
+                <div class="card bg-base-100 shadow-xl mb-6">
+                    <div class="card-body">
+                        <h3 class="card-title text-lg mb-4">🔐 احراز هویت</h3>
+                        <div class="steps steps-vertical">
+                            <div class="step step-primary">
+                                <div class="text-left">
+                                    <div class="font-semibold">ورود به سیستم</div>
+                                    <div class="text-sm opacity-70">با نام کاربری و رمز عبور وارد شوید</div>
+                                </div>
+                            </div>
+                            <div class="step step-secondary">
+                                <div class="text-left">
+                                    <div class="font-semibold">دسترسی به منوها</div>
+                                    <div class="text-sm opacity-70">بر اساس سطح دسترسی شما</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning mt-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                            </svg>
+                            <span>در صورت نداشتن حساب کاربری، با مدیر سیستم تماس بگیرید</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- داشبورد -->
+                <div class="card bg-base-100 shadow-xl mb-6" id="dashboard">
+                    <div class="card-body">
+                        <h3 class="card-title text-lg mb-4">📊 داشبورد مدیریتی</h3>
+                        <p class="mb-4">داشبورد اصلی شامل اطلاعات زیر است:</p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-primary/10 p-4 rounded-lg">
+                                <h4 class="font-semibold text-primary mb-2">📈 آمار کلی</h4>
+                                <ul class="text-sm space-y-1">
+                                    <li>• تعداد کل سفارشات</li>
+                                    <li>• تعداد کل مشتریان</li>
+                                    <li>• درآمد دوره انتخابی</li>
+                                    <li>• عدسی‌های در انتظار</li>
+                                </ul>
+                            </div>
+                            <div class="bg-secondary/10 p-4 rounded-lg">
+                                <h4 class="font-semibold text-secondary mb-2">📊 نمودارها</h4>
+                                <ul class="text-sm space-y-1">
+                                    <li>• سفارشات روزانه</li>
+                                    <li>• وضعیت سفارشات</li>
+                                    <li>• ایتم‌های تحویل شده</li>
+                                    <li>• محبوب‌ترین عدسی‌ها</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- مدیریت سفارشات -->
+                <div class="card bg-base-100 shadow-xl mb-6" id="orders">
+                    <div class="card-body">
+                        <h3 class="card-title text-lg mb-4">📋 مدیریت سفارشات</h3>
+
+                        <div class="collapse collapse-arrow bg-base-200 mb-4">
+                            <input type="checkbox" />
+                            <div class="collapse-title text-lg font-medium">
+                                ➕ ایجاد سفارش جدید
+                            </div>
+                            <div class="collapse-content">
+                                <div class="steps steps-vertical">
+                                    <div class="step step-primary">کلیک روی "سفارش جدید"</div>
+                                    <div class="step step-primary">انتخاب یا ایجاد مشتری</div>
+                                    <div class="step step-primary">وارد کردن مشخصات عدسی</div>
+                                    <div class="step step-primary">تعیین قیمت و پیش‌پرداخت</div>
+                                    <div class="step step-primary">افزودن یادداشت‌ها</div>
+                                    <div class="step">ذخیره سفارش</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="collapse collapse-arrow bg-base-200 mb-4">
+                            <input type="checkbox" />
+                            <div class="collapse-title text-lg font-medium">
+                                ✏️ ویرایش سفارش
+                            </div>
+                            <div class="collapse-content">
+                                <div class="alert alert-info">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span>از لیست سفارشات، روی دکمه "ویرایش" کلیک کنید و تغییرات را اعمال کنید</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="collapse collapse-arrow bg-base-200">
+                            <input type="checkbox" />
+                            <div class="collapse-title text-lg font-medium">
+                                🔄 تغییر وضعیت سفارش
+                            </div>
+                            <div class="collapse-content">
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                    <div class="badge badge-warning">در انتظار</div>
+                                    <div class="badge badge-info">در حال انجام</div>
+                                    <div class="badge badge-success">تکمیل شده</div>
+                                    <div class="badge badge-error">لغو شده</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- مدیریت مشتریان -->
+                <div class="card bg-base-100 shadow-xl mb-6" id="customers">
+                    <div class="card-body">
+                        <h3 class="card-title text-lg mb-4">👥 مدیریت مشتریان</h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-accent/10 p-4 rounded-lg">
+                                <h4 class="font-semibold text-accent mb-2">➕ افزودن مشتری</h4>
+                                <ul class="text-sm space-y-1">
+                                    <li>• نام و نام خانوادگی</li>
+                                    <li>• شماره تلفن</li>
+                                    <li>• آدرس (اختیاری)</li>
+                                    <li>• طبقه‌بندی VIP</li>
+                                    <li>• یادداشت‌ها</li>
+                                </ul>
+                            </div>
+                            <div class="bg-info/10 p-4 rounded-lg">
+                                <h4 class="font-semibold text-info mb-2">🔍 جستجو و فیلتر</h4>
+                                <ul class="text-sm space-y-1">
+                                    <li>• جستجو بر اساس نام</li>
+                                    <li>• جستجو بر اساس تلفن</li>
+                                    <li>• فیلتر مشتریان VIP</li>
+                                    <li>• مرتب‌سازی</li>
+                                    <li>• صفحه‌بندی</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- سیستم مالی -->
+                <div class="card bg-base-100 shadow-xl mb-6" id="financial">
+                    <div class="card-body">
+                        <h3 class="card-title text-lg mb-4">💰 سیستم مالی</h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <div class="bg-success/10 p-4 rounded-lg">
+                                <h4 class="font-semibold text-success mb-2">🏛️ صندوق اصلی</h4>
+                                <ul class="text-sm space-y-1">
+                                    <li>• درآمد مشتریان عادی</li>
+                                    <li>• پیش‌پرداخت‌ها</li>
+                                    <li>• تسویه‌های مشتریان</li>
+                                    <li>• کسر تمام هزینه‌ها</li>
+                                </ul>
+                            </div>
+                            <div class="bg-primary/10 p-4 rounded-lg">
+                                <h4 class="font-semibold text-primary mb-2">🏦 صندوق A</h4>
+                                <ul class="text-sm space-y-1">
+                                    <li>• 80,000 تومان × تعداد عدسی VIP</li>
+                                    <li>• بدون کسر هزینه</li>
+                                    <li>• گزارش‌گیری مجزا</li>
+                                </ul>
+                            </div>
+                            <div class="bg-secondary/10 p-4 rounded-lg">
+                                <h4 class="font-semibold text-secondary mb-2">🏛️ صندوق B</h4>
+                                <ul class="text-sm space-y-1">
+                                    <li>• مابقی درآمد مشتریان VIP</li>
+                                    <li>• بدون کسر هزینه</li>
+                                    <li>• گزارش‌گیری مجزا</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>درآمد به صورت خودکار بر اساس نوع مشتری (عادی/VIP) توزیع می‌شود</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- سیستم تسویه -->
+                <div class="card bg-base-100 shadow-xl mb-6" id="settlement">
+                    <div class="card-body">
+                        <h3 class="card-title text-lg mb-4">💳 سیستم تسویه حساب</h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-warning/10 p-4 rounded-lg">
+                                <h4 class="font-semibold text-warning mb-2">💰 ثبت تسویه</h4>
+                                <ul class="text-sm space-y-1">
+                                    <li>• کلیک روی دکمه تسویه در لیست سفارشات</li>
+                                    <li>• مشاهده اطلاعات کامل سفارش</li>
+                                    <li>• وارد کردن مبلغ پرداختی</li>
+                                    <li>• افزودن یادداشت (اختیاری)</li>
+                                    <li>• تشخیص خودکار تسویه کامل</li>
+                                </ul>
+                            </div>
+                            <div class="bg-success/10 p-4 rounded-lg">
+                                <h4 class="font-semibold text-success mb-2">📊 وضعیت‌های تسویه</h4>
+                                <ul class="text-sm space-y-1">
+                                    <li>🔴 تسویه نشده: هیچ پرداختی ثبت نشده</li>
+                                    <li>🟡 تسویه جزئی: بخشی پرداخت شده</li>
+                                    <li>🟢 تسویه شده: کامل پرداخت شده</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <h4 class="font-semibold mb-3">🔄 جریان تسویه:</h4>
+                            <div class="steps steps-vertical lg:steps-horizontal">
+                                <div class="step step-primary">پیش‌پرداخت</div>
+                                <div class="step step-secondary">تسویه‌های جزئی</div>
+                                <div class="step step-success">تسویه کامل</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- مدیریت شرکا -->
+                <div class="card bg-base-100 shadow-xl mb-6" id="partners">
+                    <div class="card-body">
+                        <h3 class="card-title text-lg mb-4">🤝 مدیریت شرکا</h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-info/10 p-4 rounded-lg">
+                                <h4 class="font-semibold text-info mb-2">👥 ثبت شریک</h4>
+                                <ul class="text-sm space-y-1">
+                                    <li>• نام و نام خانوادگی</li>
+                                    <li>• شماره تلفن</li>
+                                    <li>• درصد سهم</li>
+                                    <li>• یادداشت‌ها</li>
+                                </ul>
+                            </div>
+                            <div class="bg-accent/10 p-4 rounded-lg">
+                                <h4 class="font-semibold text-accent mb-2">💸 تراکنش‌ها</h4>
+                                <ul class="text-sm space-y-1">
+                                    <li>• واریز به حساب شریک</li>
+                                    <li>• برداشت از حساب شریک</li>
+                                    <li>• محاسبه خودکار مانده</li>
+                                    <li>• گزارش‌گیری کامل</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- گزارش‌گیری -->
+            <section id="reports" class="mb-12">
+                <h2 class="text-3xl font-bold section-header">📈 گزارش‌گیری</h2>
+
+                <div class="card bg-base-100 shadow-xl mb-6">
+                    <div class="card-body">
+                        <h3 class="card-title text-lg mb-4">📊 انواع گزارش‌ها</h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div class="bg-primary/10 p-4 rounded-lg">
+                                <h4 class="font-semibold text-primary mb-2">📈 گزارش فروش</h4>
+                                <ul class="text-sm space-y-1">
+                                    <li>• فروش روزانه</li>
+                                    <li>• فروش ماهانه</li>
+                                    <li>• مقایسه دوره‌ای</li>
+                                    <li>• خروجی Excel</li>
+                                </ul>
+                            </div>
+                            <div class="bg-secondary/10 p-4 rounded-lg">
+                                <h4 class="font-semibold text-secondary mb-2">👥 گزارش مشتریان</h4>
+                                <ul class="text-sm space-y-1">
+                                    <li>• مشتریان جدید</li>
+                                    <li>• مشتریان فعال</li>
+                                    <li>• تاریخچه خرید</li>
+                                    <li>• آمار وفاداری</li>
+                                </ul>
+                            </div>
+                            <div class="bg-accent/10 p-4 rounded-lg">
+                                <h4 class="font-semibold text-accent mb-2">💰 گزارش‌های مالی</h4>
+                                <ul class="text-sm space-y-1">
+                                    <li>• گزارش صندوق‌های مالی</li>
+                                    <li>• درآمد و هزینه</li>
+                                    <li>• تسویه‌ها و مطالبات</li>
+                                    <li>• گزارش شرکا</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- API -->
+            <section id="api" class="mb-12">
+                <h2 class="text-3xl font-bold section-header">🔌 API مستندات</h2>
+
+                <div class="card bg-base-100 shadow-xl mb-6">
+                    <div class="card-body">
+                        <h3 class="card-title text-lg mb-4">🌐 API Endpoints</h3>
+
+                        <div class="overflow-x-auto">
+                            <table class="table table-zebra">
+                                <thead>
+                                    <tr>
+                                        <th>Method</th>
+                                        <th>Endpoint</th>
+                                        <th>توضیحات</th>
+                                        <th>پارامترها</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><div class="badge badge-success">GET</div></td>
+                                        <td><code>/api/dashboard/daily-orders</code></td>
+                                        <td>سفارشات روزانه</td>
+                                        <td>days (7,14,30)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><div class="badge badge-success">GET</div></td>
+                                        <td><code>/api/dashboard/status-chart</code></td>
+                                        <td>نمودار وضعیت</td>
+                                        <td>-</td>
+                                    </tr>
+                                    <tr>
+                                        <td><div class="badge badge-success">GET</div></td>
+                                        <td><code>/api/dashboard/delivered-items</code></td>
+                                        <td>ایتم‌های تحویل شده</td>
+                                        <td>days (7,14,30)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><div class="badge badge-success">GET</div></td>
+                                        <td><code>/api/dashboard/popular-lenses</code></td>
+                                        <td>محبوب‌ترین عدسی‌ها</td>
+                                        <td>-</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- عیب‌یابی -->
+            <section id="troubleshooting" class="mb-12">
+                <h2 class="text-3xl font-bold section-header">🔧 عیب‌یابی</h2>
+
+                <div class="card bg-base-100 shadow-xl mb-6">
+                    <div class="card-body">
+                        <h3 class="card-title text-lg mb-4">❓ مشکلات رایج</h3>
+
+                        <div class="space-y-4">
+                            <div class="collapse collapse-arrow bg-base-200">
+                                <input type="checkbox" />
+                                <div class="collapse-title text-lg font-medium">
+                                    🚫 خطای 500 در هنگام اجرا
+                                </div>
+                                <div class="collapse-content">
+                                    <div class="alert alert-error">
+                                        <span>بررسی کنید که تمام وابستگی‌ها نصب شده باشند و دیتابیس راه‌اندازی شده باشد</span>
+                                    </div>
+                                    <div class="code-block mt-2">pip install -r requirements.txt
+flask db upgrade</div>
+                                </div>
+                            </div>
+
+                            <div class="collapse collapse-arrow bg-base-200">
+                                <input type="checkbox" />
+                                <div class="collapse-title text-lg font-medium">
+                                    📊 نمودارها نمایش داده نمی‌شوند
+                                </div>
+                                <div class="collapse-content">
+                                    <div class="alert alert-warning">
+                                        <span>مطمئن شوید که Chart.js بارگذاری شده و اتصال اینترنت برقرار است</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="collapse collapse-arrow bg-base-200">
+                                <input type="checkbox" />
+                                <div class="collapse-title text-lg font-medium">
+                                    🔐 مشکل ورود به سیستم
+                                </div>
+                                <div class="collapse-content">
+                                    <div class="alert alert-info">
+                                        <span>از صحت نام کاربری و رمز عبور اطمینان حاصل کنید</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- توسعه -->
+            <section id="development" class="mb-12">
+                <h2 class="text-3xl font-bold section-header">💻 راهنمای توسعه</h2>
+
+                <div class="card bg-base-100 shadow-xl mb-6">
+                    <div class="card-body">
+                        <h3 class="card-title text-lg mb-4">🛠️ محیط توسعه</h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-semibold mb-3">📦 نصب وابستگی‌های توسعه:</h4>
+                                <div class="code-block">pip install -r requirements-dev.txt</div>
+
+                                <h4 class="font-semibold mb-3 mt-4">🔧 راه‌اندازی pre-commit:</h4>
+                                <div class="code-block">pre-commit install</div>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold mb-3">🧪 اجرای تست‌ها:</h4>
+                                <div class="code-block">pytest</div>
+
+                                <h4 class="font-semibold mb-3 mt-4">📊 تست با coverage:</h4>
+                                <div class="code-block">pytest --cov=app</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- تاریخچه تغییرات -->
+            <section id="changelog" class="mb-12">
+                <h2 class="text-3xl font-bold section-header">📝 تاریخچه تغییرات</h2>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-success"></div>
+                        <div class="timeline-content">
+                            <h3 class="text-lg font-semibold">نسخه 3.0.0</h3>
+                            <p class="text-sm opacity-70">1403/09/25</p>
+                            <ul class="mt-2 text-sm space-y-1">
+                                <li>• 🆕 سیستم مالی جامع (صندوق‌های اصلی، A، B)</li>
+                                <li>• 🆕 سیستم تسویه حساب پیشرفته</li>
+                                <li>• 🆕 مدیریت شرکا و سهام</li>
+                                <li>• 🆕 طبقه‌بندی مشتریان VIP</li>
+                                <li>• 🆕 توزیع خودکار درآمد</li>
+                                <li>• 🆕 مدیریت هزینه‌های عملیاتی</li>
+                                <li>• 🆕 گزارش‌گیری مالی کامل</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-primary"></div>
+                        <div class="timeline-content">
+                            <h3 class="text-lg font-semibold">نسخه 2.0.0</h3>
+                            <p class="text-sm opacity-70">1403/09/15</p>
+                            <ul class="mt-2 text-sm space-y-1">
+                                <li>• بهبود رابط کاربری</li>
+                                <li>• افزودن گزارش‌گیری پیشرفته</li>
+                                <li>• بهینه‌سازی عملکرد</li>
+                                <li>• رفع باگ‌های جزئی</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-secondary"></div>
+                        <div class="timeline-content">
+                            <h3 class="text-lg font-semibold">نسخه 1.5.0</h3>
+                            <p class="text-sm opacity-70">1403/08/20</p>
+                            <ul class="mt-2 text-sm space-y-1">
+                                <li>• افزودن چاپ فاکتور</li>
+                                <li>• بهبود جستجو</li>
+                                <li>• افزودن فیلترهای جدید</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-accent"></div>
+                        <div class="timeline-content">
+                            <h3 class="text-lg font-semibold">نسخه 1.0.0</h3>
+                            <p class="text-sm opacity-70">1403/07/01</p>
+                            <ul class="mt-2 text-sm space-y-1">
+                                <li>• انتشار اولیه</li>
+                                <li>• مدیریت سفارشات</li>
+                                <li>• مدیریت مشتریان</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- پشتیبانی -->
+            <section id="support" class="mb-12">
+                <h2 class="text-3xl font-bold section-header">🆘 پشتیبانی</h2>
+
+                <div class="card bg-base-100 shadow-xl">
+                    <div class="card-body">
+                        <h3 class="card-title text-lg mb-4">📞 راه‌های تماس</h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div class="bg-primary/10 p-4 rounded-lg text-center">
+                                <div class="text-primary text-2xl mb-2">📧</div>
+                                <h4 class="font-semibold">ایمیل</h4>
+                                <p class="text-sm">support@samsamlab.com</p>
+                            </div>
+                            <div class="bg-secondary/10 p-4 rounded-lg text-center">
+                                <div class="text-secondary text-2xl mb-2">💬</div>
+                                <h4 class="font-semibold">تلگرام</h4>
+                                <p class="text-sm">@samsamlab_support</p>
+                            </div>
+                            <div class="bg-accent/10 p-4 rounded-lg text-center">
+                                <div class="text-accent text-2xl mb-2">📱</div>
+                                <h4 class="font-semibold">تلفن</h4>
+                                <p class="text-sm">021-12345678</p>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-success mt-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div>
+                                <h4 class="font-bold">پشتیبانی 24/7</h4>
+                                <div class="text-sm">تیم پشتیبانی ما آماده کمک به شما در تمام ساعات شبانه‌روز است</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<script>
+// Smooth scrolling for navigation links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Highlight active section in navigation
+window.addEventListener('scroll', function() {
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.menu a[href^="#"]');
+
+    let current = '';
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        if (scrollY >= (sectionTop - 200)) {
+            current = section.getAttribute('id');
+        }
+    });
+
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + current) {
+            link.classList.add('active');
+        }
+    });
+});
+</script>
+    </div>
+</div>
+{% endblock %} 

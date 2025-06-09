@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block title %}فاکتور صندوق {{ cashbox.name }}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <a href="{{ url_for('cashbox.index') }}" class="flex items-center gap-2">
+        <span>💰</span>
+        <span>صندوق مالی</span>
+    </a>
+</li>
+<li class="breadcrumb-item">
+    <a href="{{ url_for('cashbox.detail', cashbox_name=cashbox.name) }}" class="flex items-center gap-2">
+        <span>📊</span>
+        <span>صندوق {{ cashbox.name }}</span>
+    </a>
+</li>
+<li class="breadcrumb-item">
+    <span class="flex items-center gap-2 text-primary">
+        <span>🧾</span>
+        <span>فاکتور</span>
+    </span>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+            <h1 class="text-4xl font-bold mb-2">
+                🧾 فاکتور صندوق {{ cashbox.name }}
+            </h1>
+            <p class="text-base-content/70">
+                از {{ date_from }} تا {{ date_to }}
+            </p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ url_for('cashbox.detail', cashbox_name=cashbox.name) }}" class="btn btn-outline">
+                <span class="ml-2">🔙</span>
+                بازگشت
+            </a>
+            <button onclick="window.print()" class="btn btn-primary">
+                <span class="ml-2">🖨️</span>
+                چاپ
+            </button>
+        </div>
+    </div>
+
+    <!-- فاکتور -->
+    <div class="card bg-base-100 shadow-xl print:shadow-none" id="invoice">
+        <!-- Header فاکتور -->
+        <div class="card-header bg-{% if cashbox.name == 'A' %}primary{% else %}secondary{% endif %} text-{% if cashbox.name == 'A' %}primary{% else %}secondary{% endif %}-content p-6 rounded-t-2xl print:bg-gray-100 print:text-black">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h2 class="text-2xl font-bold mb-2">
+                        {% if cashbox.name == 'A' %}🏦{% else %}🏛️{% endif %} 
+                        فاکتور صندوق {{ cashbox.name }}
+                    </h2>
+                    <p class="opacity-80">لابراتوار صمصام - سیستم مدیریت عینک‌سازی</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm opacity-80">تاریخ صدور</div>
+                    <div class="font-bold" id="currentDate"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-6">
+            <!-- اطلاعات دوره -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="text-center p-4 bg-base-200 rounded-lg">
+                    <div class="text-2xl font-bold text-success">{{ "{:,}".format(total_income|int) }}</div>
+                    <div class="text-sm opacity-70">کل درآمد (تومان)</div>
+                </div>
+                <div class="text-center p-4 bg-base-200 rounded-lg">
+                    <div class="text-2xl font-bold text-error">{{ "{:,}".format(total_expense|int) }}</div>
+                    <div class="text-sm opacity-70">کل هزینه (تومان)</div>
+                </div>
+                <div class="text-center p-4 bg-{% if net_amount >= 0 %}success{% else %}error{% endif %} text-{% if net_amount >= 0 %}success{% else %}error{% endif %}-content rounded-lg">
+                    <div class="text-2xl font-bold">{{ "{:,}".format(net_amount|int) }}</div>
+                    <div class="text-sm opacity-80">خالص (تومان)</div>
+                </div>
+            </div>
+
+            <!-- جدول تراکنش‌ها -->
+            {% if transactions %}
+            <div class="overflow-x-auto">
+                <table class="table table-zebra w-full">
+                    <thead>
+                        <tr>
+                            <th class="text-right">ردیف</th>
+                            <th class="text-right">تاریخ</th>
+                            <th class="text-right">نوع</th>
+                            <th class="text-right">شرح</th>
+                            <th class="text-right">درآمد</th>
+                            <th class="text-right">هزینه</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                        <tr>
+                            <td class="text-right">{{ loop.index }}</td>
+                            <td class="text-right text-sm">{{ transaction.created_at.strftime('%Y/%m/%d') }}</td>
+                            <td class="text-right">
+                                {% if transaction.transaction_type == 'income' %}
+                                    <span class="badge badge-success badge-sm">درآمد</span>
+                                {% else %}
+                                    <span class="badge badge-error badge-sm">هزینه</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-right text-sm">{{ transaction.description }}</td>
+                            <td class="text-right font-mono">
+                                {% if transaction.transaction_type == 'income' %}
+                                    {{ "{:,}".format(transaction.amount|int) }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td class="text-right font-mono">
+                                {% if transaction.transaction_type == 'expense' %}
+                                    {{ "{:,}".format(transaction.amount|int) }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="font-bold">
+                            <td colspan="4" class="text-right">جمع کل:</td>
+                            <td class="text-right font-mono text-success">{{ "{:,}".format(total_income|int) }}</td>
+                            <td class="text-right font-mono text-error">{{ "{:,}".format(total_expense|int) }}</td>
+                        </tr>
+                        <tr class="font-bold text-lg">
+                            <td colspan="5" class="text-right">خالص:</td>
+                            <td class="text-right font-mono {% if net_amount >= 0 %}text-success{% else %}text-error{% endif %}">
+                                {{ "{:,}".format(net_amount|int) }}
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-8 text-base-content/50">
+                <div class="text-4xl mb-4">📊</div>
+                <p>در بازه زمانی انتخابی تراکنشی یافت نشد</p>
+            </div>
+            {% endif %}
+
+            <!-- Footer فاکتور -->
+            <div class="mt-8 pt-6 border-t border-base-300">
+                <div class="flex justify-between items-center text-sm opacity-70">
+                    <div>
+                        <p>تاریخ صدور: <span id="footerDate"></span></p>
+                        <p>سیستم مدیریت لابراتوار صمصام</p>
+                    </div>
+                    <div class="text-right">
+                        <p>صندوق {{ cashbox.name }}</p>
+                        <p>
+                            {% if cashbox.name == 'A' %}
+                                درآمد اصلی و هزینه‌ها
+                            {% else %}
+                                درآمد VIP اضافی
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+@media print {
+    .navbar, .breadcrumbs, .btn, footer {
+        display: none !important;
+    }
+    
+    .container {
+        max-width: none !important;
+        padding: 0 !important;
+    }
+    
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #ddd;
+    }
+    
+    .card-header {
+        background: #f5f5f5 !important;
+        color: #333 !important;
+    }
+    
+    body {
+        background: white !important;
+    }
+    
+    .table {
+        font-size: 12px;
+    }
+    
+    .badge {
+        border: 1px solid #ddd;
+        background: white !important;
+        color: #333 !important;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// تنظیم تاریخ امروز
+document.addEventListener('DOMContentLoaded', function() {
+    const now = new Date();
+    const today = now.getFullYear() + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + String(now.getDate()).padStart(2, '0');
+    const todayTime = today + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+
+    const currentDateEl = document.getElementById('currentDate');
+    const footerDateEl = document.getElementById('footerDate');
+
+    if (currentDateEl) currentDateEl.textContent = today;
+    if (footerDateEl) footerDateEl.textContent = todayTime;
+});
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// تنظیم تاریخ امروز
+document.addEventListener('DOMContentLoaded', function() {
+    const now = new Date();
+    const today = now.toLocaleDateString('fa-IR');
+    const todayTime = now.toLocaleDateString('fa-IR') + ' ' + now.toLocaleTimeString('fa-IR', {hour: '2-digit', minute: '2-digit'});
+
+    const currentDateEl = document.getElementById('currentDate');
+    const footerDateEl = document.getElementById('footerDate');
+
+    if (currentDateEl) currentDateEl.textContent = today;
+    if (footerDateEl) footerDateEl.textContent = todayTime;
+});
+</script>
+{% endblock %}
